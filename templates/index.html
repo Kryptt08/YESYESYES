@@ -505,28 +505,31 @@
 
   <script>
     let musicPlaying = false;
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        try {
-          const ctx = new (window.AudioContext || window.webkitAudioContext)();
-          const osc = ctx.createOscillator(); const gain = ctx.createGain();
-          osc.connect(gain); gain.connect(ctx.destination);
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(800, ctx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.5);
-          gain.gain.setValueAtTime(0.15, ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
-          osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.5);
-        } catch(e) {}
-      }, 400);
-    });
+    let musicStarted = false;
+
+    function startMusic() {
+      if (musicStarted) return;
+      musicStarted = true;
+      const iframe = document.getElementById('ytPlayer');
+      const btn    = document.getElementById('musicBtn');
+      const bars   = document.getElementById('musicBars');
+      iframe.src = 'https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&enablejsapi=1';
+      btn.textContent = '⏸';
+      bars.classList.remove('paused');
+      musicPlaying = true;
+    }
+
+    // Start music on first interaction
+    document.addEventListener('click', startMusic, { once: true });
+    document.addEventListener('keydown', startMusic, { once: true });
+
     function toggleMusic() {
       const iframe = document.getElementById('ytPlayer');
-      const btn = document.getElementById('musicBtn');
-      const bars = document.getElementById('musicBars');
+      const btn    = document.getElementById('musicBtn');
+      const bars   = document.getElementById('musicBars');
       if (!musicPlaying) {
         iframe.src = 'https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&enablejsapi=1';
-        btn.textContent = '⏸'; bars.classList.remove('paused'); musicPlaying = true;
+        btn.textContent = '⏸'; bars.classList.remove('paused'); musicPlaying = true; musicStarted = true;
       } else {
         iframe.src = 'https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=0&enablejsapi=1';
         btn.textContent = '▶'; bars.classList.add('paused'); musicPlaying = false;

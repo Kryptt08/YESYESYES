@@ -539,8 +539,24 @@
 
   <script>
     let musicPlaying = false;
+    let musicStarted = false;
 
-    // Whoosh sound on page load using Web Audio API
+    function startMusic() {
+      if (musicStarted) return;
+      musicStarted = true;
+      const iframe = document.getElementById('ytPlayer');
+      const btn    = document.getElementById('musicBtn');
+      const bars   = document.getElementById('musicBars');
+      iframe.src = 'https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&enablejsapi=1';
+      btn.textContent = '⏸';
+      bars.classList.remove('paused');
+      musicPlaying = true;
+    }
+
+    document.addEventListener('click', startMusic, { once: true });
+    document.addEventListener('keydown', startMusic, { once: true });
+
+    // Whoosh sound on page load
     window.addEventListener('load', () => {
       setTimeout(() => {
         try {
@@ -583,16 +599,13 @@
       const iframe = document.getElementById('ytPlayer');
       const btn    = document.getElementById('musicBtn');
       const bars   = document.getElementById('musicBars');
-
       if (!musicPlaying) {
         iframe.src = 'https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&enablejsapi=1';
-        btn.textContent = '⏸';
-        bars.classList.remove('paused');
-        musicPlaying = true;
+        btn.textContent = '⏸'; bars.classList.remove('paused');
+        musicPlaying = true; musicStarted = true;
       } else {
         iframe.src = 'https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=0&enablejsapi=1';
-        btn.textContent = '▶';
-        bars.classList.add('paused');
+        btn.textContent = '▶'; bars.classList.add('paused');
         musicPlaying = false;
       }
     }
