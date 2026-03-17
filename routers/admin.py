@@ -1,21 +1,18 @@
 from fastapi import APIRouter, HTTPException, Depends, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from datetime import datetime, timezone
 import hashlib
 import secrets
 
-from database import get_conn
+from database import get_conn, dict_rows, dict_row
 from schemas import PetCreate, PetUpdate
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
-# ── Simple session store (use Redis in production) ────────────────────────────
-_sessions: dict[str, str] = {}
+_sessions: dict = {}
 
 ADMIN_USERNAME = "admin"
-# Default password: "bgsgg_admin" — CHANGE THIS before deploying!
 ADMIN_PASSWORD_HASH = hashlib.sha256(b"bgsgg_admin").hexdigest()
 
 
@@ -23,7 +20,7 @@ def hash_password(pw: str) -> str:
     return hashlib.sha256(pw.encode()).hexdigest()
 
 
-def get_session_user(request: Request) -> str | None:
+def get_session_user(request: Request):
     token = request.cookies.get("session")
     return _sessions.get(token)
 
@@ -34,8 +31,6 @@ def require_admin(request: Request):
         raise HTTPException(status_code=401, detail="Not authenticated")
     return user
 
-
-# ── Auth ──────────────────────────────────────────────────────────────────────
 
 @router.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
@@ -68,12 +63,11 @@ async def logout(request: Request):
     return resp
 
 
-# ── Admin Dashboard ───────────────────────────────────────────────────────────
-
 @router.get("/", response_class=HTMLResponse)
 async def dashboard(request: Request, user: str = Depends(require_admin)):
     conn = get_conn()
-    pets = conn.execute("""
+    cur = conn.cursor()
+    cur.execute("""
         SELECT * FROM pets
         ORDER BY
           CASE rarity
@@ -82,12 +76,13 @@ async def dashboard(request: Request, user: str = Depends(require_admin)):
             WHEN 'Legendary' THEN 2
             ELSE 3
           END,
-          CAST(value AS REAL) DESC,
+          CASE WHEN value ~ '^[0-9]+(\\.[0-9]+)?$' THEN CAST(value AS NUMERIC) ELSE 0 END DESC,
           name ASC
-    """).fetchall()
-    recent = conn.execute(
-        "SELECT * FROM value_history ORDER BY changed_at DESC LIMIT 10"
-    ).fetchall()
+    """)
+    pets = dict_rows(cur, cur.fetchall())
+    cur.execute("SELECT * FROM value_history ORDER BY changed_at DESC LIMIT 10")
+    recent = dict_rows(cur, cur.fetchall())
+    cur.close()
     conn.close()
     return templates.TemplateResponse(
         "dashboard.html",
@@ -95,23 +90,25 @@ async def dashboard(request: Request, user: str = Depends(require_admin)):
     )
 
 
-# ── Pet Management (API endpoints used by admin panel JS) ────────────────────
-
 @router.post("/pets/add")
 async def add_pet(pet: PetCreate, user: str = Depends(require_admin)):
     conn = get_conn()
+    cur = conn.cursor()
     try:
-        conn.execute(
+        cur.execute(
             """
             INSERT INTO pets (name, rarity, value, shiny_value, image_url, shiny_image_url, note, exists_normal, exists_shiny, demand, trend)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """,
             (pet.name, pet.rarity, pet.value, pet.shiny_value, pet.image_url, pet.shiny_image_url, pet.note, pet.exists_normal, pet.exists_shiny, pet.demand, pet.trend),
         )
         conn.commit()
     except Exception as e:
+        conn.rollback()
+        cur.close()
         conn.close()
         raise HTTPException(status_code=400, detail=f"Could not add pet: {e}")
+    cur.close()
     conn.close()
     return {"success": True, "message": f"{pet.name} added"}
 
@@ -123,47 +120,40 @@ async def update_pet_value(
     user: str = Depends(require_admin),
 ):
     conn = get_conn()
+    cur = conn.cursor()
 
-    row = conn.execute("SELECT * FROM pets WHERE id = ?", (pet_id,)).fetchone()
+    cur.execute("SELECT * FROM pets WHERE id = %s", (pet_id,))
+    row = dict_row(cur, cur.fetchone())
     if not row:
+        cur.close()
         conn.close()
         raise HTTPException(status_code=404, detail="Pet not found")
 
-    old_value = row["value"]
-    old_shiny = row["shiny_value"]
-
-    # Write history entry
-    conn.execute(
+    cur.execute(
         """
         INSERT INTO value_history
             (pet_id, pet_name, old_value, new_value, old_shiny, new_shiny, changed_by, reason)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """,
-        (
-            pet_id,
-            row["name"],
-            old_value,
-            update.value,
-            old_shiny,
-            update.shiny_value,
-            user,
-            update.reason,
-        ),
+        (pet_id, row["name"], row["value"], update.value,
+         row["shiny_value"], update.shiny_value, user, update.reason),
     )
 
-    # Update pet
-    conn.execute(
+    cur.execute(
         """
         UPDATE pets
-        SET value = ?, shiny_value = ?, image_url = ?, shiny_image_url = ?, note = ?,
-            exists_normal = ?, exists_shiny = ?, demand = ?, trend = ?,
-            updated_at = datetime('now')
-        WHERE id = ?
+        SET value = %s, shiny_value = %s, image_url = %s, shiny_image_url = %s,
+            note = %s, exists_normal = %s, exists_shiny = %s,
+            demand = %s, trend = %s,
+            updated_at = to_char(NOW(), 'YYYY-MM-DD HH24:MI:SS')
+        WHERE id = %s
         """,
-        (update.value, update.shiny_value, update.image_url, update.shiny_image_url, update.note,
-         update.exists_normal, update.exists_shiny, update.demand, update.trend, pet_id),
+        (update.value, update.shiny_value, update.image_url, update.shiny_image_url,
+         update.note, update.exists_normal, update.exists_shiny,
+         update.demand, update.trend, pet_id),
     )
     conn.commit()
+    cur.close()
     conn.close()
     return {"success": True, "message": f"Value updated for {row['name']}"}
 
@@ -171,11 +161,15 @@ async def update_pet_value(
 @router.delete("/pets/{pet_id}")
 async def delete_pet(pet_id: int, user: str = Depends(require_admin)):
     conn = get_conn()
-    row = conn.execute("SELECT name FROM pets WHERE id = ?", (pet_id,)).fetchone()
+    cur = conn.cursor()
+    cur.execute("SELECT name FROM pets WHERE id = %s", (pet_id,))
+    row = cur.fetchone()
     if not row:
+        cur.close()
         conn.close()
         raise HTTPException(status_code=404, detail="Pet not found")
-    conn.execute("DELETE FROM pets WHERE id = ?", (pet_id,))
+    cur.execute("DELETE FROM pets WHERE id = %s", (pet_id,))
     conn.commit()
+    cur.close()
     conn.close()
-    return {"success": True, "message": f"{row['name']} deleted"}
+    return {"success": True, "message": f"{row[0]} deleted"}

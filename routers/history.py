@@ -1,34 +1,34 @@
 from fastapi import APIRouter, Query
-from database import get_conn
+from typing import List
+from database import get_conn, dict_rows
 from schemas import HistoryOut
 
 router = APIRouter()
 
 
-@router.get("/", response_model=list[HistoryOut])
+@router.get("/", response_model=List[HistoryOut])
 def get_history(limit: int = Query(default=50, le=200)):
-    """Get the most recent value changes across all pets."""
     conn = get_conn()
-    rows = conn.execute(
-        "SELECT * FROM value_history ORDER BY changed_at DESC LIMIT ?",
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT * FROM value_history ORDER BY changed_at DESC LIMIT %s",
         (limit,),
-    ).fetchall()
+    )
+    rows = dict_rows(cur, cur.fetchall())
+    cur.close()
     conn.close()
-    return [dict(r) for r in rows]
+    return rows
 
 
-@router.get("/{pet_id}", response_model=list[HistoryOut])
+@router.get("/{pet_id}", response_model=List[HistoryOut])
 def get_pet_history(pet_id: int, limit: int = Query(default=20, le=100)):
-    """Get value change history for a specific pet."""
     conn = get_conn()
-    rows = conn.execute(
-        """
-        SELECT * FROM value_history
-        WHERE pet_id = ?
-        ORDER BY changed_at DESC
-        LIMIT ?
-        """,
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT * FROM value_history WHERE pet_id = %s ORDER BY changed_at DESC LIMIT %s",
         (pet_id, limit),
-    ).fetchall()
+    )
+    rows = dict_rows(cur, cur.fetchall())
+    cur.close()
     conn.close()
-    return [dict(r) for r in rows]
+    return rows

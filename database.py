@@ -1,81 +1,93 @@
-import sqlite3
-from datetime import datetime
+import os
+import psycopg2
 
-DB_PATH = "bgs.db"
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
 
 
 def get_conn():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
+    conn = psycopg2.connect(DATABASE_URL)
     return conn
+
+
+def dict_row(cur, row):
+    if row is None:
+        return None
+    cols = [d[0] for d in cur.description]
+    return dict(zip(cols, row))
+
+
+def dict_rows(cur, rows):
+    cols = [d[0] for d in cur.description]
+    return [dict(zip(cols, r)) for r in rows]
 
 
 def init_db():
     conn = get_conn()
     cur = conn.cursor()
 
-    cur.executescript("""
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS pets (
-            id          INTEGER PRIMARY KEY AUTOINCREMENT,
-            name        TEXT    NOT NULL UNIQUE,
-            rarity      TEXT    NOT NULL,
-            value       TEXT    NOT NULL DEFAULT '0',
-            shiny_value TEXT,
-            image_url   TEXT,
-            note        TEXT,
-            created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
-            updated_at  TEXT    NOT NULL DEFAULT (datetime('now'))
-        );
-
-        -- Add image_url column if it doesn't exist yet (safe migration)
-        CREATE TABLE IF NOT EXISTS _migration_check (id INTEGER PRIMARY KEY);
-
-        CREATE TABLE IF NOT EXISTS value_history (
-            id          INTEGER PRIMARY KEY AUTOINCREMENT,
-            pet_id      INTEGER NOT NULL REFERENCES pets(id) ON DELETE CASCADE,
-            pet_name    TEXT    NOT NULL,
-            old_value   TEXT    NOT NULL,
-            new_value   TEXT    NOT NULL,
-            old_shiny   TEXT,
-            new_shiny   REAL,
-            changed_by  TEXT    NOT NULL DEFAULT 'admin',
-            reason      TEXT,
-            changed_at  TEXT    NOT NULL DEFAULT (datetime('now'))
-        );
-
-        CREATE TABLE IF NOT EXISTS admin_users (
-            id            INTEGER PRIMARY KEY AUTOINCREMENT,
-            username      TEXT    NOT NULL UNIQUE,
-            password_hash TEXT    NOT NULL,
-            created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
-        );
+            id              SERIAL PRIMARY KEY,
+            name            TEXT NOT NULL UNIQUE,
+            rarity          TEXT NOT NULL,
+            value           TEXT NOT NULL DEFAULT '0',
+            shiny_value     TEXT,
+            image_url       TEXT,
+            shiny_image_url TEXT,
+            note            TEXT,
+            exists_normal   INTEGER DEFAULT 0,
+            exists_shiny    INTEGER DEFAULT 0,
+            demand          INTEGER DEFAULT 0,
+            trend           TEXT DEFAULT 'stable',
+            created_at      TEXT NOT NULL DEFAULT to_char(NOW(), 'YYYY-MM-DD HH24:MI:SS'),
+            updated_at      TEXT NOT NULL DEFAULT to_char(NOW(), 'YYYY-MM-DD HH24:MI:SS')
+        )
     """)
 
-    conn.commit()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS value_history (
+            id          SERIAL PRIMARY KEY,
+            pet_id      INTEGER NOT NULL REFERENCES pets(id) ON DELETE CASCADE,
+            pet_name    TEXT NOT NULL,
+            old_value   TEXT NOT NULL,
+            new_value   TEXT NOT NULL,
+            old_shiny   TEXT,
+            new_shiny   TEXT,
+            changed_by  TEXT NOT NULL DEFAULT 'admin',
+            reason      TEXT,
+            changed_at  TEXT NOT NULL DEFAULT to_char(NOW(), 'YYYY-MM-DD HH24:MI:SS')
+        )
+    """)
 
-    # Safe migrations for new columns
-    new_columns = [
-        ("ALTER TABLE pets ADD COLUMN image_url TEXT", "image_url"),
-        ("ALTER TABLE pets ADD COLUMN shiny_image_url TEXT", "shiny_image_url"),
-        ("ALTER TABLE pets ADD COLUMN exists_normal INTEGER DEFAULT 0", "exists_normal"),
-        ("ALTER TABLE pets ADD COLUMN exists_shiny INTEGER DEFAULT 0", "exists_shiny"),
-        ("ALTER TABLE pets ADD COLUMN demand INTEGER DEFAULT 0", "demand"),
-        ("ALTER TABLE pets ADD COLUMN trend TEXT DEFAULT 'stable'", "trend"),
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS admin_users (
+            id            SERIAL PRIMARY KEY,
+            username      TEXT NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL,
+            created_at    TEXT NOT NULL DEFAULT to_char(NOW(), 'YYYY-MM-DD HH24:MI:SS')
+        )
+    """)
+
+    safe_columns = [
+        "ALTER TABLE pets ADD COLUMN IF NOT EXISTS image_url TEXT",
+        "ALTER TABLE pets ADD COLUMN IF NOT EXISTS shiny_image_url TEXT",
+        "ALTER TABLE pets ADD COLUMN IF NOT EXISTS exists_normal INTEGER DEFAULT 0",
+        "ALTER TABLE pets ADD COLUMN IF NOT EXISTS exists_shiny INTEGER DEFAULT 0",
+        "ALTER TABLE pets ADD COLUMN IF NOT EXISTS demand INTEGER DEFAULT 0",
+        "ALTER TABLE pets ADD COLUMN IF NOT EXISTS trend TEXT DEFAULT 'stable'",
     ]
-    for sql, _ in new_columns:
+    for sql in safe_columns:
         try:
-            conn.execute(sql)
-            conn.commit()
+            cur.execute(sql)
         except Exception:
-            pass  # Column already exists
+            conn.rollback()
 
+    conn.commit()
+    cur.close()
     conn.close()
 
 
-# ── Seed with all BGS pets at value 0 ────────────────────────────────────────
 SEED_PETS = [
-    # (name, rarity, value, shiny_value, note)
-    # ===== LIMITED =====
     ("Giant Robot",       "Limited",   "0", "0",  "Only 7 in existence"),
     ("Leviathan",         "Limited",   "0", None, None),
     ("Sinister Lord",     "Limited",   "0", "0",  None),
@@ -101,8 +113,6 @@ SEED_PETS = [
     ("Tophat D",          "Limited",   "0", "0",  None),
     ("Tophat E",          "Limited",   "0", "0",  None),
     ("Tophat F",          "Limited",   "0", "0",  None),
-
-    # ===== SECRET =====
     ("King Doggy",        "Secret",    "0", "0",  None),
     ("Giant Pearl",       "Secret",    "0", "0",  None),
     ("Gryphon",           "Secret",    "0", "0",  None),
@@ -113,8 +123,6 @@ SEED_PETS = [
     ("OG Overlord",       "Secret",    "0", "0",  None),
     ("Rainbow Gryphon",   "Secret",    "0", "0",  None),
     ("Rainbow DogCat",    "Secret",    "0", "0",  None),
-
-    # ===== LEGENDARY =====
     ("2018 Overlord",     "Legendary", "0", "0",  None),
     ("Diamond Overlord",  "Legendary", "0", "0",  None),
     ("Valentium",         "Legendary", "0", "0",  None),
@@ -134,39 +142,39 @@ SEED_PETS = [
 
 
 def seed_db():
-    """Insert pets only if they don't already exist."""
     conn = get_conn()
     cur = conn.cursor()
     for name, rarity, value, shiny, note in SEED_PETS:
         cur.execute(
             """
-            INSERT OR IGNORE INTO pets (name, rarity, value, shiny_value, note)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO pets (name, rarity, value, shiny_value, note)
+            VALUES (%s, %s, %s, %s, %s)
+            ON CONFLICT (name) DO NOTHING
             """,
             (name, rarity, value, shiny, note),
         )
     conn.commit()
+    cur.close()
     conn.close()
 
 
 def cleanup_db():
-    """Remove pets that are no longer in the approved SEED_PETS list and fix rarities."""
     approved = {name for name, *_ in SEED_PETS}
     conn = get_conn()
     cur = conn.cursor()
 
-    # Remove unapproved pets
-    all_pets = cur.execute("SELECT id, name FROM pets").fetchall()
-    for pet in all_pets:
-        if pet["name"] not in approved:
-            cur.execute("DELETE FROM pets WHERE id = ?", (pet["id"],))
+    cur.execute("SELECT id, name FROM pets")
+    all_pets = cur.fetchall()
+    for pet_id, pet_name in all_pets:
+        if pet_name not in approved:
+            cur.execute("DELETE FROM pets WHERE id = %s", (pet_id,))
 
-    # Fix rarities for any pets that changed
     for name, rarity, *_ in SEED_PETS:
         cur.execute(
-            "UPDATE pets SET rarity = ? WHERE name = ? AND rarity != ?",
+            "UPDATE pets SET rarity = %s WHERE name = %s AND rarity != %s",
             (rarity, name, rarity)
         )
 
     conn.commit()
+    cur.close()
     conn.close()
