@@ -38,6 +38,12 @@
       pointer-events: none; z-index: 0;
     }
 
+    /* LIGHTNING BACKGROUND */
+    .lightning-canvas {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; opacity: 0.35;
+    }
+
     /* NAV */
     nav {
       position: sticky; top: 0; z-index: 100;
@@ -163,6 +169,7 @@
     .pet-card.r-secret-card:hover   { border-color: #f87171; box-shadow: 0 8px 32px rgba(239,68,68,0.2); }
     .pet-card.r-legendary-card:hover { border-color: var(--yellow); box-shadow: 0 8px 32px rgba(251,191,36,0.2); }
     .pet-card.r-limited-card:hover  { border-color: var(--pink); box-shadow: 0 8px 32px rgba(255,79,163,0.2); }
+    .pet-card.r-robux-card:hover    { border-color: #4ade80; box-shadow: 0 8px 32px rgba(0,200,100,0.2); }
 
     /* IMAGE AREA - full width top */
     .pet-img-wrap {
@@ -211,10 +218,14 @@
       display: inline-block; border-radius: 6px; padding: 2px 9px;
       font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;
     }
-    .r-secret    { background: rgba(239,68,68,0.2);  color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
-    .r-legendary { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
-    .r-limited   { background: rgba(255,79,163,0.15); color: var(--pink); border: 1px solid rgba(255,79,163,0.3); }
-    .r-rare      { background: rgba(56,189,248,0.12); color: var(--blue); border: 1px solid rgba(56,189,248,0.25); }
+    .r-secret             { background: rgba(239,68,68,0.2);   color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+    .r-limited-secret     { background: rgba(255,120,50,0.2);  color: #fb923c; border: 1px solid rgba(255,120,50,0.3); }
+    .r-permanent-secret   { background: rgba(239,68,68,0.2);   color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+    .r-legendary          { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+    .r-limited-legendary  { background: rgba(245,158,11,0.2);  color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+    .r-permanent-legendary{ background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+    .r-limited            { background: rgba(255,79,163,0.15); color: var(--pink); border: 1px solid rgba(255,79,163,0.3); }
+    .r-robux              { background: rgba(0,200,100,0.15);  color: #4ade80; border: 1px solid rgba(0,200,100,0.3); }
 
     .pet-value       { font-family: 'Baloo 2', cursive; font-size: 1.5rem; font-weight: 800; color: var(--yellow); line-height: 1; margin: 4px 0; }
     .pet-value-shiny { font-size: 0.78rem; color: var(--blue); font-weight: 700; }
@@ -260,6 +271,7 @@
   </style>
 </head>
 <body>
+  <canvas class="lightning-canvas" id="lightningCanvas"></canvas>
 
   <!-- NAV -->
   <nav>
@@ -294,10 +306,12 @@
     </div>
     <div class="filter-row">
       <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
-      <button class="filter-btn f-secret" onclick="setFilter('Secret', this)">Secret</button>
-      <button class="filter-btn f-legendary" onclick="setFilter('Legendary', this)">Legendary</button>
       <button class="filter-btn f-limited" onclick="setFilter('Limited', this)">Limited</button>
-      <button class="filter-btn f-rare" onclick="setFilter('Rare', this)">Rare</button>
+      <button class="filter-btn f-secret" onclick="setFilter('Permanent Secret', this)">Perm Secret</button>
+      <button class="filter-btn f-secret" onclick="setFilter('Limited Secret', this)">Ltd Secret</button>
+      <button class="filter-btn f-legendary" onclick="setFilter('Permanent Legendary', this)">Perm Legend</button>
+      <button class="filter-btn f-legendary" onclick="setFilter('Limited Legendary', this)">Ltd Legend</button>
+      <button class="filter-btn" onclick="setFilter('Robux', this)">Robux</button>
     </div>
     <select class="sort-select" id="sortSelect" onchange="filterPets()">
       <option value="value-desc">Highest Value</option>
@@ -327,15 +341,27 @@
     let currentFilter = 'all';
 
     function rarityClass(r) {
-      if (r === 'Secret')    return 'r-secret';
-      if (r === 'Legendary') return 'r-legendary';
-      if (r === 'Limited')   return 'r-limited';
-      return 'r-rare';
+      const map = {
+        'Limited':            'r-limited',
+        'Permanent Secret':   'r-permanent-secret',
+        'Limited Secret':     'r-limited-secret',
+        'Permanent Legendary':'r-permanent-legendary',
+        'Limited Legendary':  'r-limited-legendary',
+        'Robux':              'r-robux',
+        'Secret':             'r-secret',
+        'Legendary':          'r-legendary',
+      };
+      return map[r] || 'r-limited';
     }
     function cardRarityClass(r) {
-      if (r === 'Secret')    return 'r-secret-card';
-      if (r === 'Legendary') return 'r-legendary-card';
-      if (r === 'Limited')   return 'r-limited-card';
+      if (r === 'Limited')             return 'r-limited-card';
+      if (r === 'Permanent Secret')    return 'r-secret-card';
+      if (r === 'Limited Secret')      return 'r-secret-card';
+      if (r === 'Permanent Legendary') return 'r-legendary-card';
+      if (r === 'Limited Legendary')   return 'r-legendary-card';
+      if (r === 'Robux')               return 'r-robux-card';
+      if (r === 'Secret')              return 'r-secret-card';
+      if (r === 'Legendary')           return 'r-legendary-card';
       return '';
     }
     function formatValue(v) {
@@ -428,7 +454,7 @@
             <div class="pet-value">${formatValue(p.value)}</div>
             ${p.shiny_value ? `<div class="pet-value-shiny">✨ Shiny: ${formatValue(p.shiny_value)}</div>` : ''}
             <div class="pet-card-footer">
-              <span class="exists-tag">👤 ${p.exists_normal || 0} exist</span>
+              <span class="exists-tag">👤 ${p.exists_normal || 0}${p.exists_normal > 0 ? '+' : ''} exist</span>
               <span>${timeAgo}</span>
             </div>
           </div>
@@ -451,6 +477,51 @@
     }
 
     loadPets();
+  </script>
+
+  <script>
+    // Subtle lightning background
+    const canvas = document.getElementById('lightningCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resize() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function drawBolt(x1, y1, x2, y2, branches, alpha) {
+      if (branches === 0) return;
+      const mx = (x1 + x2) / 2 + (Math.random() - 0.5) * 80;
+      const my = (y1 + y2) / 2 + (Math.random() - 0.5) * 80;
+
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(mx, my);
+      ctx.lineTo(x2, y2);
+      ctx.strokeStyle = `rgba(168, 85, 247, ${alpha})`;
+      ctx.lineWidth = branches * 0.6;
+      ctx.shadowColor = 'rgba(168,85,247,0.8)';
+      ctx.shadowBlur = 6;
+      ctx.stroke();
+
+      if (Math.random() > 0.5) {
+        drawBolt(mx, my, mx + (Math.random()-0.5)*200, my + Math.random()*150, branches-1, alpha*0.6);
+      }
+    }
+
+    function flash() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const x = Math.random() * canvas.width;
+      drawBolt(x, 0, x + (Math.random()-0.5)*300, canvas.height * 0.6, 4, 0.4);
+      setTimeout(() => ctx.clearRect(0, 0, canvas.width, canvas.height), 120);
+    }
+
+    // Fire occasionally
+    setInterval(() => {
+      if (Math.random() > 0.4) flash();
+    }, 3000);
   </script>
 
 </body>
