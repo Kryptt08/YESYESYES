@@ -99,7 +99,7 @@ SEED_PETS = [
     ("Pot O' Gold",       "Limited",   "0", "0",  None),
     ("Kraken",            "Limited",   "0", "0",  None),
     ("Soul Heart",        "Limited",   "0", "0",  None),
-    ("Immortal One",      "Limited",   "0", "0",  None),
+    ("Immortal One",      "Limited",   "1", "0",  None),
     ("Patriotic Robot",   "Limited",   "0", "0",  None),
     ("Holy Bell",         "Limited",   "0", "0",  None),
     ("Frost Sentinel",    "Limited",   "0", "0",  None),
