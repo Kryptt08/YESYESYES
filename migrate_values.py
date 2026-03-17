@@ -36,7 +36,7 @@ VALUES = [
     ("Frost Sentinel",  "0",       "N/A",    0,  "stable"),
     ("Robot 2.0",       "0",       "N/A",    0,  "stable"),
     ("Ultimate Clover", "0",       "N/A",    0,  "stable"),
-    # ===== SECRET =====
+    # ===== PERMANENT SECRET =====
     ("Fallen Angel",    "8500",    "N/A",    5,  "down"),
     ("Dogcat",          "8000",    "N/A",    5,  "down"),
     ("Rainbow Gryphon", "7250",    "36250",  5,  "down"),
@@ -46,7 +46,7 @@ VALUES = [
     ("Sea Star",        "6000",    "30000",  5,  "down"),
     ("OwOLord",         "5000",    "25000",  5,  "down"),
     ("OG Overlord",     "3000",    "15000",  5,  "down"),
-    # ===== LEGENDARY =====
+    # ===== PERMANENT LEGENDARY =====
     ("2018 Overlord",     "4500",  "25000",  7,  "up"),
     ("Ice Winged Hydra",  "2500",  "10000",  7,  "stable"),
     ("Diamond Overlord",  "1200",  "7000",   5,  "stable"),
@@ -91,3 +91,24 @@ def run():
 
 if __name__ == "__main__":
     run()
+
+
+def fix_rarities():
+    """Migrate old rarity names to new ones."""
+    conn = psycopg2.connect(DATABASE_URL)
+    cur = conn.cursor()
+    # Limited -> Limited Secret
+    cur.execute("UPDATE pets SET rarity = 'Limited Secret' WHERE rarity = 'Limited'")
+    # Legendary -> Limited Legendary  
+    cur.execute("UPDATE pets SET rarity = 'Limited Legendary' WHERE rarity = 'Legendary'")
+    # Secret -> Permanent Secret
+    cur.execute("UPDATE pets SET rarity = 'Permanent Secret' WHERE rarity = 'Secret'")
+    conn.commit()
+    rows = cur.rowcount
+    cur.close()
+    conn.close()
+    print(f"Rarities fixed!")
+
+if __name__ == "__main__":
+    run()
+    fix_rarities()

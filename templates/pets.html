@@ -41,7 +41,7 @@
     /* LIGHTNING BACKGROUND */
     .lightning-canvas {
       position: fixed; inset: 0; z-index: 0;
-      pointer-events: none; opacity: 0.35;
+      pointer-events: none; opacity: 0.6;
     }
 
     /* NAV */
@@ -306,12 +306,11 @@
     </div>
     <div class="filter-row">
       <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
-      <button class="filter-btn f-limited" onclick="setFilter('Limited', this)">Limited</button>
+      <button class="filter-btn f-limited" onclick="setFilter('Limited Secret', this)">Ltd Secret</button>
       <button class="filter-btn f-secret" onclick="setFilter('Permanent Secret', this)">Perm Secret</button>
-      <button class="filter-btn f-secret" onclick="setFilter('Limited Secret', this)">Ltd Secret</button>
-      <button class="filter-btn f-legendary" onclick="setFilter('Permanent Legendary', this)">Perm Legend</button>
       <button class="filter-btn f-legendary" onclick="setFilter('Limited Legendary', this)">Ltd Legend</button>
-      <button class="filter-btn" onclick="setFilter('Robux', this)">Robux</button>
+      <button class="filter-btn f-legendary" onclick="setFilter('Permanent Legendary', this)">Perm Legend</button>
+      <button class="filter-btn" onclick="setFilter('Robux', this)" style="color:#4ade80;">Robux</button>
     </div>
     <select class="sort-select" id="sortSelect" onchange="filterPets()">
       <option value="value-desc">Highest Value</option>
@@ -493,35 +492,43 @@
 
     function drawBolt(x1, y1, x2, y2, branches, alpha) {
       if (branches === 0) return;
-      const mx = (x1 + x2) / 2 + (Math.random() - 0.5) * 80;
-      const my = (y1 + y2) / 2 + (Math.random() - 0.5) * 80;
+      const mx = (x1 + x2) / 2 + (Math.random() - 0.5) * 120;
+      const my = (y1 + y2) / 2 + (Math.random() - 0.5) * 120;
 
       ctx.beginPath();
       ctx.moveTo(x1, y1);
       ctx.lineTo(mx, my);
       ctx.lineTo(x2, y2);
       ctx.strokeStyle = `rgba(168, 85, 247, ${alpha})`;
-      ctx.lineWidth = branches * 0.6;
-      ctx.shadowColor = 'rgba(168,85,247,0.8)';
-      ctx.shadowBlur = 6;
+      ctx.lineWidth = branches * 0.8;
+      ctx.shadowColor = 'rgba(168,85,247,1)';
+      ctx.shadowBlur = 12;
       ctx.stroke();
 
-      if (Math.random() > 0.5) {
-        drawBolt(mx, my, mx + (Math.random()-0.5)*200, my + Math.random()*150, branches-1, alpha*0.6);
+      if (Math.random() > 0.3) {
+        drawBolt(mx, my, mx + (Math.random()-0.5)*250, my + Math.random()*200, branches-1, alpha*0.7);
+      }
+      if (Math.random() > 0.6) {
+        drawBolt(mx, my, mx + (Math.random()-0.5)*150, my + Math.random()*100, branches-1, alpha*0.5);
       }
     }
 
     function flash() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const x = Math.random() * canvas.width;
-      drawBolt(x, 0, x + (Math.random()-0.5)*300, canvas.height * 0.6, 4, 0.4);
-      setTimeout(() => ctx.clearRect(0, 0, canvas.width, canvas.height), 120);
+      const numBolts = Math.floor(Math.random() * 3) + 1;
+      for (let i = 0; i < numBolts; i++) {
+        const x = Math.random() * canvas.width;
+        drawBolt(x, 0, x + (Math.random()-0.5)*400, canvas.height * 0.7, 5, 0.6);
+      }
+      setTimeout(() => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }, 150);
     }
 
-    // Fire occasionally
+    // Fire more frequently
     setInterval(() => {
-      if (Math.random() > 0.4) flash();
-    }, 3000);
+      if (Math.random() > 0.2) flash();
+    }, 2000);
   </script>
 
 </body>

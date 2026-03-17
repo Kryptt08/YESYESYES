@@ -292,7 +292,7 @@
   </style>
 </head>
 <body>
-  <canvas class="lightning-canvas" id="lightningCanvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.35;"></canvas>
+  <canvas class="lightning-canvas" id="lightningCanvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.6;"></canvas>
 
   <!-- NAV -->
   <nav>
@@ -455,11 +455,11 @@
     resize2(); window.addEventListener('resize', resize2);
     function drawBolt2(x1,y1,x2,y2,b,a) {
       if(b===0) return;
-      const mx=(x1+x2)/2+(Math.random()-.5)*80, my=(y1+y2)/2+(Math.random()-.5)*80;
+      const mx=(x1+x2)/2+(Math.random()-.5)*120, my=(y1+y2)/2+(Math.random()-.5)*120;
       ctx2.beginPath(); ctx2.moveTo(x1,y1); ctx2.lineTo(mx,my); ctx2.lineTo(x2,y2);
-      ctx2.strokeStyle='rgba(168,85,247,'+a+')'; ctx2.lineWidth=b*.6;
-      ctx2.shadowColor='rgba(168,85,247,.8)'; ctx2.shadowBlur=6; ctx2.stroke();
-      if(Math.random()>.5) drawBolt2(mx,my,mx+(Math.random()-.5)*200,my+Math.random()*150,b-1,a*.6);
+      ctx2.strokeStyle='rgba(168,85,247,'+a+')'; ctx2.lineWidth=b*.8;
+      ctx2.shadowColor='rgba(168,85,247,.8)'; ctx2.shadowBlur=12; ctx2.stroke();
+      if(Math.random()>.3) drawBolt2(mx,my,mx+(Math.random()-.5)*200,my+Math.random()*150,b-1,a*.6);
     }
     function flash2() {
       ctx2.clearRect(0,0,canvas2.width,canvas2.height);
@@ -467,7 +467,7 @@
       drawBolt2(x,0,x+(Math.random()-.5)*300,canvas2.height*.6,4,.4);
       setTimeout(()=>ctx2.clearRect(0,0,canvas2.width,canvas2.height),120);
     }
-    setInterval(()=>{ if(Math.random()>.4) flash2(); },3000);
+    setInterval(()=>{ if(Math.random()>.2) flash2(); },2000);
   </script>
 </body>
 </html>
