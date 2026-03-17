@@ -88,7 +88,7 @@ def init_db():
 
 
 SEED_PETS = [
-    ("Giant Robot",       "Limited",   "0", "0",  "Only 7 in existence"),
+    ("Giant Robot",       "Limited",   "0", "0",  "None"),
     ("Leviathan",         "Limited",   "0", None, None),
     ("Sinister Lord",     "Limited",   "0", "0",  None),
     ("Robot 2.0",         "Limited",   "0", "0",  None),
@@ -99,7 +99,7 @@ SEED_PETS = [
     ("Pot O' Gold",       "Limited",   "0", "0",  None),
     ("Kraken",            "Limited",   "0", "0",  None),
     ("Soul Heart",        "Limited",   "0", "0",  None),
-    ("Immortal One",      "Limited",   "0", "0",  None),
+    ("Immortal One",      "Limited",   "1", "0",  None),
     ("Patriotic Robot",   "Limited",   "0", "0",  None),
     ("Holy Bell",         "Limited",   "0", "0",  None),
     ("Frost Sentinel",    "Limited",   "0", "0",  None),
@@ -124,7 +124,6 @@ SEED_PETS = [
     ("Rainbow Gryphon",   "Secret",    "0", "0",  None),
     ("Rainbow DogCat",    "Secret",    "0", "0",  None),
     ("2018 Overlord",     "Legendary", "0", "0",  None),
-    ("Ice Winged Hydra",  "Legendary", "0", "0",  None),
     ("Diamond Overlord",  "Legendary", "0", "0",  None),
     ("Valentium",         "Legendary", "0", "0",  None),
     ("Patriotic Penguin", "Legendary", "0", "0",  None),
