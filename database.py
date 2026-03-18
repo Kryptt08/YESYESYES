@@ -82,6 +82,14 @@ def init_db():
         except Exception:
             conn.rollback()
 
+    # Migrate exists columns from INTEGER to TEXT if needed
+    try:
+        cur.execute("ALTER TABLE pets ALTER COLUMN exists_normal TYPE TEXT USING exists_normal::TEXT")
+        cur.execute("ALTER TABLE pets ALTER COLUMN exists_shiny TYPE TEXT USING exists_shiny::TEXT")
+        conn.commit()
+    except Exception:
+        conn.rollback()
+
     conn.commit()
     cur.close()
     conn.close()
