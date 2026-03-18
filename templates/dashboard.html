@@ -240,11 +240,11 @@
                       </div>
                       <div style="display:flex;align-items:center;gap:8px;">
                         <span style="color:var(--muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;width:90px;">Normal Exists</span>
-                        <input type="number" min="0" value="{{ pet['exists_normal'] or 0 }}" id="enorm-{{ pet['id'] }}" style="width:90px;">
+                        <input type="text" placeholder="e.g. 28 or 78+" value="{{ pet['exists_normal'] or '0' }}" id="enorm-{{ pet['id'] }}" style="width:90px;">
                       </div>
                       <div style="display:flex;align-items:center;gap:8px;">
                         <span style="color:var(--muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;width:90px;">Shiny Exists</span>
-                        <input type="number" min="0" value="{{ pet['exists_shiny'] or 0 }}" id="eshiny-{{ pet['id'] }}" style="width:90px;">
+                        <input type="text" placeholder="e.g. 12 or 45+" value="{{ pet['exists_shiny'] or '0' }}" id="eshiny-{{ pet['id'] }}" style="width:90px;">
                       </div>
                       <div style="display:flex;align-items:center;gap:8px;">
                         <span style="color:var(--muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;width:90px;">Demand (0-10)</span>
@@ -432,8 +432,8 @@
     const shiny   = document.getElementById(`shiny-${id}`).value.trim();
     const imgUrl  = document.getElementById(`img-${id}`).value.trim();
     const sImgUrl = document.getElementById(`simg-${id}`).value.trim();
-    const enorm   = parseInt(document.getElementById(`enorm-${id}`).value) || 0;
-    const eshiny  = parseInt(document.getElementById(`eshiny-${id}`).value) || 0;
+    const enorm   = document.getElementById(`enorm-${id}`).value.trim() || '0';
+    const eshiny  = document.getElementById(`eshiny-${id}`).value.trim() || '0';
     const demand  = parseInt(document.getElementById(`demand-${id}`).value) || 0;
     const trend   = document.getElementById(`trend-${id}`).value;
     const reason  = document.getElementById(`reason-${id}`).value.trim();

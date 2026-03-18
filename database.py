@@ -35,8 +35,8 @@ def init_db():
             image_url       TEXT,
             shiny_image_url TEXT,
             note            TEXT,
-            exists_normal   INTEGER DEFAULT 0,
-            exists_shiny    INTEGER DEFAULT 0,
+            exists_normal   TEXT DEFAULT '0',
+            exists_shiny    TEXT DEFAULT '0',
             demand          INTEGER DEFAULT 0,
             trend           TEXT DEFAULT 'stable',
             created_at      TEXT NOT NULL DEFAULT to_char(NOW(), 'YYYY-MM-DD HH24:MI:SS'),
@@ -71,8 +71,8 @@ def init_db():
     safe_columns = [
         "ALTER TABLE pets ADD COLUMN IF NOT EXISTS image_url TEXT",
         "ALTER TABLE pets ADD COLUMN IF NOT EXISTS shiny_image_url TEXT",
-        "ALTER TABLE pets ADD COLUMN IF NOT EXISTS exists_normal INTEGER DEFAULT 0",
-        "ALTER TABLE pets ADD COLUMN IF NOT EXISTS exists_shiny INTEGER DEFAULT 0",
+        "ALTER TABLE pets ADD COLUMN IF NOT EXISTS exists_normal TEXT DEFAULT '0'",
+        "ALTER TABLE pets ADD COLUMN IF NOT EXISTS exists_shiny TEXT DEFAULT '0'",
         "ALTER TABLE pets ADD COLUMN IF NOT EXISTS demand INTEGER DEFAULT 0",
         "ALTER TABLE pets ADD COLUMN IF NOT EXISTS trend TEXT DEFAULT 'stable'",
     ]
