@@ -192,10 +192,11 @@
       <div class="filter-bar">
         <input type="text" id="searchInput" placeholder="Search pets…" oninput="filterTable()">
         <button class="filter-tab active" onclick="setRarityFilter('all', this)">All</button>
-        <button class="filter-tab" onclick="setRarityFilter('Limited', this)">Limited</button>
-        <button class="filter-tab" onclick="setRarityFilter('Secret', this)">Secret</button>
-        <button class="filter-tab" onclick="setRarityFilter('Legendary', this)">Legendary</button>
-        <button class="filter-tab" onclick="setRarityFilter('Rare', this)">Rare</button>
+        <button class="filter-tab" onclick="setRarityFilter('Limited Secret', this)">Ltd Secret</button>
+        <button class="filter-tab" onclick="setRarityFilter('Permanent Secret', this)">Perm Secret</button>
+        <button class="filter-tab" onclick="setRarityFilter('Limited Legendary', this)">Ltd Legend</button>
+        <button class="filter-tab" onclick="setRarityFilter('Robux', this)">Robux</button>
+        <button class="filter-tab" onclick="setRarityFilter('Misc', this)">Misc</button>
       </div>
       <div style="overflow-x:auto;">
         <table class="pet-table" id="petTable">
@@ -379,7 +380,13 @@
 <script>
   let rarityFilter = 'all';
 
-  const RARITY_ORDER = { 'Limited': 0, 'Secret': 1, 'Legendary': 2, 'Rare': 3 };
+  const RARITY_ORDER = {
+    'Limited Secret': 0,
+    'Permanent Secret': 1,
+    'Limited Legendary': 2,
+    'Robux': 3,
+    'Misc': 4
+  };
 
   function sortTable() {
     const tbody = document.querySelector('#petTable tbody');
