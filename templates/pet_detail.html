@@ -322,11 +322,12 @@
           </div>
         </div>
 
-        ${pet.description ? `
         <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px 22px;margin-bottom:0;">
-          <div style="font-size:0.65rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">About</div>
-          <div style="font-size:0.9rem;color:var(--text);line-height:1.7;">${pet.description}</div>
-        </div>` : ''}
+          <div style="font-size:0.65rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Description</div>
+          <div style="font-size:0.9rem;color:${pet.description ? 'var(--text)' : 'var(--muted)'};line-height:1.7;font-style:${pet.description ? 'normal' : 'italic'};">
+            ${pet.description || 'No description set yet.'}
+          </div>
+        </div>
 
         <div class="detail-grid">
           <div class="panel" style="grid-column: 1 / -1;">
