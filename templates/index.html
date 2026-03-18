@@ -509,7 +509,7 @@
     let musicStarted = sessionStorage.getItem('musicStarted') === 'true';
 
     function startMusic() {
-      if (musicStarted) return;
+      if (musicPlaying) return;
       musicStarted = true;
       sessionStorage.setItem('musicStarted', 'true');
       const iframe = document.getElementById('ytPlayer');
@@ -519,7 +519,7 @@
       btn.textContent = '⏸';
       bars.classList.remove('paused');
       musicPlaying = true;
-      setTimeout(() => { iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[25]}', '*'); }, 2000);
+      setTimeout(() => { iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[10]}', '*'); }, 2000);
     }
 
     // Start music on first interaction
