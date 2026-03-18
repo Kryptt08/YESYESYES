@@ -542,11 +542,12 @@
 
   <script>
     let musicPlaying = false;
-    let musicStarted = false;
+    let musicStarted = sessionStorage.getItem('musicStarted') === 'true';
 
     function startMusic() {
       if (musicStarted) return;
       musicStarted = true;
+      sessionStorage.setItem('musicStarted', 'true');
       const iframe = document.getElementById('ytPlayer');
       const btn    = document.getElementById('musicBtn');
       const bars   = document.getElementById('musicBars');
@@ -557,6 +558,10 @@
       setTimeout(() => { iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[25]}', '*'); }, 2000);
     }
 
+    // Auto resume if was playing on another page
+    if (musicStarted) {
+      window.addEventListener('load', () => setTimeout(startMusic, 500));
+    }
     document.addEventListener('click', startMusic, { once: true });
     document.addEventListener('keydown', startMusic, { once: true });
 

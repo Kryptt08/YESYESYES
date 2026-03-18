@@ -506,11 +506,12 @@
 
   <script>
     let musicPlaying = false;
-    let musicStarted = false;
+    let musicStarted = sessionStorage.getItem('musicStarted') === 'true';
 
     function startMusic() {
       if (musicStarted) return;
       musicStarted = true;
+      sessionStorage.setItem('musicStarted', 'true');
       const iframe = document.getElementById('ytPlayer');
       const btn    = document.getElementById('musicBtn');
       const bars   = document.getElementById('musicBars');
@@ -522,6 +523,10 @@
     }
 
     // Start music on first interaction
+    // Auto resume if was playing on another page
+    if (musicStarted) {
+      window.addEventListener('load', () => setTimeout(startMusic, 500));
+    }
     document.addEventListener('click', startMusic, { once: true });
     document.addEventListener('keydown', startMusic, { once: true });
 
@@ -540,25 +545,69 @@
   </script>
 
   <script>
-    const canvas2 = document.getElementById('lightningCanvas');
+const canvas2 = document.getElementById('lightningCanvas');
     const ctx2 = canvas2.getContext('2d');
-    function resize2() { canvas2.width = window.innerWidth; canvas2.height = window.innerHeight; }
-    resize2(); window.addEventListener('resize', resize2);
-    function drawBolt2(x1,y1,x2,y2,b,a) {
-      if(b===0) return;
-      const mx=(x1+x2)/2+(Math.random()-.5)*120, my=(y1+y2)/2+(Math.random()-.5)*120;
-      ctx2.beginPath(); ctx2.moveTo(x1,y1); ctx2.lineTo(mx,my); ctx2.lineTo(x2,y2);
-      ctx2.strokeStyle='rgba(168,85,247,'+a+')'; ctx2.lineWidth=b*.8;
-      ctx2.shadowColor='rgba(168,85,247,.8)'; ctx2.shadowBlur=12; ctx2.stroke();
-      if(Math.random()>.3) drawBolt2(mx,my,mx+(Math.random()-.5)*200,my+Math.random()*150,b-1,a*.6);
+    function resize() { canvas2.width = window.innerWidth; canvas2.height = window.innerHeight; }
+    resize(); window.addEventListener('resize', resize);
+
+    function drawBolt(x1, y1, x2, y2, branches, alpha) {
+      if (branches === 0) return;
+      const segs = 6;
+      let points = [{x: x1, y: y1}];
+      for (let i = 1; i < segs; i++) {
+        const t = i / segs;
+        points.push({
+          x: x1 + (x2-x1)*t + (Math.random()-0.5)*160,
+          y: y1 + (y2-y1)*t + (Math.random()-0.5)*60
+        });
+      }
+      points.push({x: x2, y: y2});
+
+      ctx2.beginPath();
+      ctx2.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) ctx2.lineTo(points[i].x, points[i].y);
+      ctx2.strokeStyle = `rgba(168,85,247,${alpha})`;
+      ctx2.lineWidth = branches * 1.2;
+      ctx2.shadowColor = 'rgba(168,85,247,1)';
+      ctx2.shadowBlur = 20;
+      ctx2.stroke();
+
+      // Pink secondary glow
+      ctx2.strokeStyle = `rgba(255,79,163,${alpha * 0.4})`;
+      ctx2.lineWidth = branches * 2.5;
+      ctx2.shadowColor = 'rgba(255,79,163,0.8)';
+      ctx2.shadowBlur = 30;
+      ctx2.stroke();
+
+      for (let p of points) {
+        if (Math.random() > 0.6) {
+          drawBolt(p.x, p.y,
+            p.x + (Math.random()-0.5)*300,
+            p.y + Math.random()*250,
+            branches-1, alpha*0.65);
+        }
+      }
     }
+
     function flash2() {
-      ctx2.clearRect(0,0,canvas2.width,canvas2.height);
-      const x=Math.random()*canvas2.width;
-      drawBolt2(x,0,x+(Math.random()-.5)*300,canvas2.height*.6,4,.4);
-      setTimeout(()=>ctx2.clearRect(0,0,canvas2.width,canvas2.height),120);
+      ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+      const numBolts = Math.floor(Math.random() * 4) + 1;
+      for (let i = 0; i < numBolts; i++) {
+        const x = Math.random() * canvas2.width;
+        drawBolt(x, 0, x + (Math.random()-0.5)*500, canvas2.height * 0.8, 5, 0.75);
+      }
+      // Double flash effect
+      setTimeout(() => {
+        ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+        if (Math.random() > 0.5) {
+          const x2 = Math.random() * canvas2.width;
+          drawBolt(x2, 0, x2 + (Math.random()-0.5)*300, canvas2.height * 0.6, 3, 0.5);
+          setTimeout(() => ctx2.clearRect(0, 0, canvas2.width, canvas2.height), 80);
+        }
+      }, 100);
     }
-    setInterval(()=>{ if(Math.random()>.2) flash2(); },2000);
+
+    setInterval(() => { if (Math.random() > 0.15) flash2(); }, 1500);
   </script>
 </body>
 </html>
