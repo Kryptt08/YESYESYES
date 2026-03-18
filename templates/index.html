@@ -428,6 +428,7 @@
         'Permanent Legendary':'r-legendary',
         'Limited Legendary':  'r-legendary',
         'Robux':              'r-robux',
+        'Reward':             'r-reward',
         'Secret':             'r-secret',
         'Legendary':          'r-legendary',
       };
@@ -517,6 +518,7 @@
       btn.textContent = '⏸';
       bars.classList.remove('paused');
       musicPlaying = true;
+      setTimeout(() => { iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[25]}', '*'); }, 2000);
     }
 
     // Start music on first interaction

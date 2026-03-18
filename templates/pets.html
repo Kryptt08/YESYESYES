@@ -226,6 +226,7 @@
     .r-permanent-legendary{ background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
     .r-limited            { background: rgba(255,79,163,0.15); color: var(--pink); border: 1px solid rgba(255,79,163,0.3); }
     .r-robux              { background: rgba(0,200,100,0.15);  color: #4ade80; border: 1px solid rgba(0,200,100,0.3); }
+    .r-reward             { background: rgba(251,146,60,0.15);  color: #fb923c; border: 1px solid rgba(251,146,60,0.3); }
 
     .pet-value       { font-family: 'Baloo 2', cursive; font-size: 1.5rem; font-weight: 800; color: var(--yellow); line-height: 1; margin: 4px 0; }
     .pet-value-shiny { font-size: 0.78rem; color: var(--blue); font-weight: 700; }
@@ -352,6 +353,7 @@
       <button class="filter-btn f-legendary" onclick="setFilter('Limited Legendary', this)">Ltd Legend</button>
       <button class="filter-btn f-legendary" onclick="setFilter('Permanent Legendary', this)">Perm Legend</button>
       <button class="filter-btn" onclick="setFilter('Robux', this)" style="color:#4ade80;">Robux</button>
+      <button class="filter-btn" onclick="setFilter('Reward', this)" style="color:#fb923c;">Reward</button>
     </div>
     <select class="sort-select" id="sortSelect" onchange="filterPets()">
       <option value="value-desc">Highest Value</option>
@@ -388,6 +390,7 @@
         'Permanent Legendary':'r-permanent-legendary',
         'Limited Legendary':  'r-limited-legendary',
         'Robux':              'r-robux',
+        'Reward':             'r-reward',
         'Secret':             'r-secret',
         'Legendary':          'r-legendary',
       };
@@ -551,6 +554,7 @@
       btn.textContent = '⏸';
       bars.classList.remove('paused');
       musicPlaying = true;
+      setTimeout(() => { iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[25]}', '*'); }, 2000);
     }
 
     document.addEventListener('click', startMusic, { once: true });
@@ -603,6 +607,7 @@
         iframe.src = 'https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&enablejsapi=1';
         btn.textContent = '⏸'; bars.classList.remove('paused');
         musicPlaying = true; musicStarted = true;
+        setTimeout(() => { iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[25]}', '*'); }, 2000);
       } else {
         iframe.src = 'https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=0&enablejsapi=1';
         btn.textContent = '▶'; bars.classList.add('paused');
