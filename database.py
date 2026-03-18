@@ -81,12 +81,17 @@ def init_db():
     for sql in safe_columns:
         try:
             cur.execute(sql)
+            conn.commit()
         except Exception:
             conn.rollback()
 
     # Migrate exists columns from INTEGER to TEXT if needed
     try:
         cur.execute("ALTER TABLE pets ALTER COLUMN exists_normal TYPE TEXT USING exists_normal::TEXT")
+        conn.commit()
+    except Exception:
+        conn.rollback()
+    try:
         cur.execute("ALTER TABLE pets ALTER COLUMN exists_shiny TYPE TEXT USING exists_shiny::TEXT")
         conn.commit()
     except Exception:
