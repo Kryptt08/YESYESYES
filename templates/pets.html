@@ -227,6 +227,7 @@
     .r-limited            { background: rgba(255,79,163,0.15); color: var(--pink); border: 1px solid rgba(255,79,163,0.3); }
     .r-robux              { background: rgba(0,200,100,0.15);  color: #4ade80; border: 1px solid rgba(0,200,100,0.3); }
     .r-reward             { background: rgba(251,146,60,0.15);  color: #fb923c; border: 1px solid rgba(251,146,60,0.3); }
+    .r-misc               { background: rgba(167,139,250,0.15);  color: #a78bfa; border: 1px solid rgba(167,139,250,0.3); }
 
     .pet-value       { font-family: 'Baloo 2', cursive; font-size: 1.5rem; font-weight: 800; color: var(--yellow); line-height: 1; margin: 4px 0; }
     .pet-value-shiny { font-size: 0.78rem; color: var(--blue); font-weight: 700; }
@@ -351,9 +352,7 @@
       <button class="filter-btn f-limited" onclick="setFilter('Limited Secret', this)">Ltd Secret</button>
       <button class="filter-btn f-secret" onclick="setFilter('Permanent Secret', this)">Perm Secret</button>
       <button class="filter-btn f-legendary" onclick="setFilter('Limited Legendary', this)">Ltd Legend</button>
-      <button class="filter-btn f-legendary" onclick="setFilter('Permanent Legendary', this)">Perm Legend</button>
-      <button class="filter-btn" onclick="setFilter('Robux', this)" style="color:#4ade80;">Robux</button>
-      <button class="filter-btn" onclick="setFilter('Reward', this)" style="color:#fb923c;">Reward</button>
+      <button class="filter-btn" onclick="setFilter('Misc', this)" style="color:#a78bfa;">Misc</button>
     </div>
     <select class="sort-select" id="sortSelect" onchange="filterPets()">
       <option value="value-desc">Highest Value</option>
@@ -391,6 +390,7 @@
         'Limited Legendary':  'r-limited-legendary',
         'Robux':              'r-robux',
         'Reward':             'r-reward',
+        'Misc':               'r-misc',
         'Secret':             'r-secret',
         'Legendary':          'r-legendary',
       };

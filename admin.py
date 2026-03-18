@@ -74,10 +74,9 @@ async def dashboard(request: Request, user: str = Depends(require_admin)):
             WHEN 'Limited Secret'      THEN 0
             WHEN 'Permanent Secret'    THEN 1
             WHEN 'Limited Legendary'   THEN 2
-            WHEN 'Permanent Legendary' THEN 3
-            WHEN 'Robux'               THEN 4
-            WHEN 'Reward'              THEN 5
-            ELSE 6
+            WHEN 'Robux'               THEN 3
+            WHEN 'Misc'                THEN 4
+            ELSE 5
           END,
           CASE WHEN value ~ '^[0-9]+(\\.[0-9]+)?$' THEN CAST(value AS NUMERIC) ELSE 0 END DESC,
           name ASC
