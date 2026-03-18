@@ -97,6 +97,18 @@ def init_db():
     except Exception:
         conn.rollback()
 
+    # Force add any missing columns individually
+    force_cols = [
+        "ALTER TABLE pets ADD COLUMN description TEXT",
+        "ALTER TABLE pets ADD COLUMN shiny_image_url TEXT",
+    ]
+    for sql in force_cols:
+        try:
+            cur.execute(sql)
+            conn.commit()
+        except Exception:
+            conn.rollback()
+
     conn.commit()
     cur.close()
     conn.close()
