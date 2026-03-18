@@ -15,6 +15,7 @@ class PetOut(BaseModel):
     exists_shiny: Optional[str]
     demand: Optional[int]
     trend: Optional[str]
+    description: Optional[str]
     updated_at: str
 
 
@@ -30,6 +31,7 @@ class PetCreate(BaseModel):
     exists_shiny: Optional[str] = 0
     demand: Optional[int] = 0
     trend: Optional[str] = "stable"
+    description: Optional[str] = None
 
 
 class PetUpdate(BaseModel):
@@ -43,6 +45,7 @@ class PetUpdate(BaseModel):
     exists_shiny: Optional[str] = 0
     demand: Optional[int] = 0
     trend: Optional[str] = "stable"
+    description: Optional[str] = None
 
 
 class HistoryOut(BaseModel):

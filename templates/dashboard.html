@@ -260,6 +260,10 @@
                         </select>
                       </div>
                       <div style="display:flex;align-items:center;gap:8px;">
+                        <span style="color:var(--muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;width:90px;">Description</span>
+                        <input type="text" placeholder="Short description..." value="{{ pet['description'] or '' }}" id="desc-{{ pet['id'] }}" style="width:280px;">
+                      </div>
+                      <div style="display:flex;align-items:center;gap:8px;">
                         <span style="color:var(--muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;width:90px;">Reason</span>
                         <input type="text" placeholder="Optional" id="reason-{{ pet['id'] }}" style="width:180px;">
                       </div>
@@ -442,6 +446,7 @@
     const eshiny  = document.getElementById(`eshiny-${id}`).value.trim() || '0';
     const demand  = parseInt(document.getElementById(`demand-${id}`).value) || 0;
     const trend   = document.getElementById(`trend-${id}`).value;
+    const desc    = document.getElementById(`desc-${id}`).value.trim();
     const reason  = document.getElementById(`reason-${id}`).value.trim();
 
     const res = await fetch(`/admin/pets/${id}`, {
@@ -456,6 +461,7 @@
         exists_shiny:     eshiny,
         demand,
         trend,
+        description: desc || null,
         reason: reason || null,
       }),
     });

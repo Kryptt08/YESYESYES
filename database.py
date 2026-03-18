@@ -39,6 +39,7 @@ def init_db():
             exists_shiny    TEXT DEFAULT '0',
             demand          INTEGER DEFAULT 0,
             trend           TEXT DEFAULT 'stable',
+            description     TEXT,
             created_at      TEXT NOT NULL DEFAULT to_char(NOW(), 'YYYY-MM-DD HH24:MI:SS'),
             updated_at      TEXT NOT NULL DEFAULT to_char(NOW(), 'YYYY-MM-DD HH24:MI:SS')
         )
@@ -75,6 +76,7 @@ def init_db():
         "ALTER TABLE pets ADD COLUMN IF NOT EXISTS exists_shiny TEXT DEFAULT '0'",
         "ALTER TABLE pets ADD COLUMN IF NOT EXISTS demand INTEGER DEFAULT 0",
         "ALTER TABLE pets ADD COLUMN IF NOT EXISTS trend TEXT DEFAULT 'stable'",
+        "ALTER TABLE pets ADD COLUMN IF NOT EXISTS description TEXT",
     ]
     for sql in safe_columns:
         try:

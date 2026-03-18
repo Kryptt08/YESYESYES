@@ -99,10 +99,10 @@ async def add_pet(pet: PetCreate, user: str = Depends(require_admin)):
     try:
         cur.execute(
             """
-            INSERT INTO pets (name, rarity, value, shiny_value, image_url, shiny_image_url, note, exists_normal, exists_shiny, demand, trend)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO pets (name, rarity, value, shiny_value, image_url, shiny_image_url, note, exists_normal, exists_shiny, demand, trend, description)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """,
-            (pet.name, pet.rarity, pet.value, pet.shiny_value, pet.image_url, pet.shiny_image_url, pet.note, pet.exists_normal, pet.exists_shiny, pet.demand, pet.trend),
+            (pet.name, pet.rarity, pet.value, pet.shiny_value, pet.image_url, pet.shiny_image_url, pet.note, pet.exists_normal, pet.exists_shiny, pet.demand, pet.trend, pet.description),
         )
         conn.commit()
     except Exception as e:
@@ -146,13 +146,13 @@ async def update_pet_value(
         UPDATE pets
         SET value = %s, shiny_value = %s, image_url = %s, shiny_image_url = %s,
             note = %s, exists_normal = %s, exists_shiny = %s,
-            demand = %s, trend = %s,
+            demand = %s, trend = %s, description = %s,
             updated_at = to_char(NOW(), 'YYYY-MM-DD HH24:MI:SS')
         WHERE id = %s
         """,
         (update.value, update.shiny_value, update.image_url, update.shiny_image_url,
          update.note, update.exists_normal, update.exists_shiny,
-         update.demand, update.trend, pet_id),
+         update.demand, update.trend, update.description, pet_id),
     )
     conn.commit()
     cur.close()
