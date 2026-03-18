@@ -27,8 +27,8 @@ class PetCreate(BaseModel):
     image_url: Optional[str] = None
     shiny_image_url: Optional[str] = None
     note: Optional[str] = None
-    exists_normal: Optional[str] = 0
-    exists_shiny: Optional[str] = 0
+    exists_normal: Optional[str] = "0"
+    exists_shiny: Optional[str] = "0"
     demand: Optional[int] = 0
     trend: Optional[str] = "stable"
     description: Optional[str] = None
@@ -41,8 +41,8 @@ class PetUpdate(BaseModel):
     shiny_image_url: Optional[str] = None
     note: Optional[str] = None
     reason: Optional[str] = None
-    exists_normal: Optional[str] = 0
-    exists_shiny: Optional[str] = 0
+    exists_normal: Optional[str] = "0"
+    exists_shiny: Optional[str] = "0"
     demand: Optional[int] = 0
     trend: Optional[str] = "stable"
     description: Optional[str] = None
