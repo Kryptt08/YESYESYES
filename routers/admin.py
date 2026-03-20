@@ -71,10 +71,12 @@ async def dashboard(request: Request, user: str = Depends(require_admin)):
         SELECT * FROM pets
         ORDER BY
           CASE rarity
-            WHEN 'Limited'   THEN 0
-            WHEN 'Secret'    THEN 1
-            WHEN 'Legendary' THEN 2
-            ELSE 3
+            WHEN 'Limited Secret'      THEN 0
+            WHEN 'Permanent Secret'    THEN 1
+            WHEN 'Limited Legendary'   THEN 2
+            WHEN 'Robux'               THEN 3
+            WHEN 'Misc'                THEN 4
+            ELSE 5
           END,
           CASE WHEN value ~ '^[0-9]+(\\.[0-9]+)?$' THEN CAST(value AS NUMERIC) ELSE 0 END DESC,
           name ASC
@@ -97,10 +99,10 @@ async def add_pet(pet: PetCreate, user: str = Depends(require_admin)):
     try:
         cur.execute(
             """
-            INSERT INTO pets (name, rarity, value, shiny_value, image_url, shiny_image_url, note, exists_normal, exists_shiny, demand, trend)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO pets (name, rarity, value, shiny_value, image_url, shiny_image_url, note, exists_normal, exists_shiny, demand, trend, description)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """,
-            (pet.name, pet.rarity, pet.value, pet.shiny_value, pet.image_url, pet.shiny_image_url, pet.note, pet.exists_normal, pet.exists_shiny, pet.demand, pet.trend),
+            (pet.name, pet.rarity, pet.value, pet.shiny_value, pet.image_url, pet.shiny_image_url, pet.note, pet.exists_normal, pet.exists_shiny, pet.demand, pet.trend, pet.description),
         )
         conn.commit()
     except Exception as e:
@@ -122,40 +124,47 @@ async def update_pet_value(
     conn = get_conn()
     cur = conn.cursor()
 
-    cur.execute("SELECT * FROM pets WHERE id = %s", (pet_id,))
-    row = dict_row(cur, cur.fetchone())
-    if not row:
+    try:
+        cur.execute("SELECT * FROM pets WHERE id = %s", (pet_id,))
+        row = dict_row(cur, cur.fetchone())
+        if not row:
+            cur.close()
+            conn.close()
+            raise HTTPException(status_code=404, detail="Pet not found")
+
+        cur.execute(
+            """
+            INSERT INTO value_history
+                (pet_id, pet_name, old_value, new_value, old_shiny, new_shiny, changed_by, reason)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """,
+            (pet_id, row["name"], row["value"], update.value,
+             row["shiny_value"], update.shiny_value, user, update.reason),
+        )
+
+        cur.execute(
+            """
+            UPDATE pets
+            SET value = %s, shiny_value = %s, image_url = %s, shiny_image_url = %s,
+                note = %s, exists_normal = %s, exists_shiny = %s,
+                demand = %s, trend = %s, description = %s,
+                updated_at = to_char(NOW(), 'YYYY-MM-DD HH24:MI:SS')
+            WHERE id = %s
+            """,
+            (update.value, update.shiny_value, update.image_url, update.shiny_image_url,
+             update.note, update.exists_normal, update.exists_shiny,
+             update.demand, update.trend, update.description, pet_id),
+        )
+        conn.commit()
         cur.close()
         conn.close()
-        raise HTTPException(status_code=404, detail="Pet not found")
-
-    cur.execute(
-        """
-        INSERT INTO value_history
-            (pet_id, pet_name, old_value, new_value, old_shiny, new_shiny, changed_by, reason)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        """,
-        (pet_id, row["name"], row["value"], update.value,
-         row["shiny_value"], update.shiny_value, user, update.reason),
-    )
-
-    cur.execute(
-        """
-        UPDATE pets
-        SET value = %s, shiny_value = %s, image_url = %s, shiny_image_url = %s,
-            note = %s, exists_normal = %s, exists_shiny = %s,
-            demand = %s, trend = %s,
-            updated_at = to_char(NOW(), 'YYYY-MM-DD HH24:MI:SS')
-        WHERE id = %s
-        """,
-        (update.value, update.shiny_value, update.image_url, update.shiny_image_url,
-         update.note, update.exists_normal, update.exists_shiny,
-         update.demand, update.trend, pet_id),
-    )
-    conn.commit()
-    cur.close()
-    conn.close()
-    return {"success": True, "message": f"Value updated for {row['name']}"}
+        return {"success": True, "message": f"Value updated for {row['name']}"}
+    except Exception as e:
+        conn.rollback()
+        cur.close()
+        conn.close()
+        print(f"ERROR updating pet {pet_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.delete("/pets/{pet_id}")
