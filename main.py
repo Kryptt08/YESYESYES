@@ -12,7 +12,6 @@ from routers import pets, admin, history
 async def lifespan(app: FastAPI):
     init_db()
     seed_db()
-    cleanup_db()
     yield
 
 
