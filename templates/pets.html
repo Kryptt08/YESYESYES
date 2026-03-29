@@ -251,44 +251,7 @@
     }
 
     
-    /* MUSIC PLAYER */
-    .music-player {
-      position: fixed; bottom: 24px; right: 24px; z-index: 200;
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 16px; padding: 12px 16px;
-      display: flex; align-items: center; gap: 10px;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-      transition: all 0.3s;
-    }
-    .music-player:hover { border-color: var(--purple); }
-    .music-btn {
-      width: 36px; height: 36px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--pink), var(--purple));
-      border: none; cursor: pointer; color: #fff;
-      font-size: 14px; display: flex; align-items: center; justify-content: center;
-      transition: all 0.2s; flex-shrink: 0;
-    }
-    .music-btn:hover { transform: scale(1.1); }
-    .music-info { display: flex; flex-direction: column; }
-    .music-title { font-size: 0.72rem; font-weight: 800; color: var(--text); }
-    .music-sub { font-size: 0.65rem; color: var(--muted); }
-    .music-bars {
-      display: flex; align-items: flex-end; gap: 2px; height: 16px;
-    }
-    .music-bars span {
-      width: 3px; background: var(--purple); border-radius: 2px;
-      animation: musicBar 0.8s ease-in-out infinite alternate;
-    }
-    .music-bars span:nth-child(1) { height: 6px;  animation-delay: 0s; }
-    .music-bars span:nth-child(2) { height: 12px; animation-delay: 0.15s; }
-    .music-bars span:nth-child(3) { height: 8px;  animation-delay: 0.3s; }
-    .music-bars span:nth-child(4) { height: 14px; animation-delay: 0.1s; }
-    .music-bars span:nth-child(5) { height: 6px;  animation-delay: 0.25s; }
-    .music-bars.paused span { animation-play-state: paused; }
-    @keyframes musicBar {
-      from { transform: scaleY(0.4); opacity: 0.5; }
-      to   { transform: scaleY(1);   opacity: 1; }
+          to   { transform: scaleY(1);   opacity: 1; }
     }
 
     .no-results {
@@ -521,15 +484,7 @@
     }
 
     loadPets();
-  </script>
-
-
-  <!-- MUSIC PLAYER -->
-  <div class="music-player" id="musicPlayer">
-    <button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="Toggle Music">▶</button>
-    <div class="music-info">
-      <div class="music-title">Lofi Radio</div>
-      <div class="music-sub">beats to chill to</div>
+  </script>      <div class="music-sub">beats to chill to</div>
     </div>
     <div class="music-bars paused" id="musicBars">
       <span></span><span></span><span></span><span></span><span></span>
@@ -537,102 +492,6 @@
   </div>
 
   <!-- Hidden YouTube iframe for audio -->
-  <iframe id="ytPlayer" style="display:none;" width="0" height="0"
-    src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=0&enablejsapi=1"
-    allow="autoplay" frameborder="0"></iframe>
-
-  <script>
-    let musicPlaying = false;
-    let musicStarted = sessionStorage.getItem('musicStarted') === 'true';
-
-    function startMusic() {
-      if (musicPlaying) return;
-      musicStarted = true;
-      sessionStorage.setItem('musicStarted', 'true');
-      const iframe = document.getElementById('ytPlayer');
-      const btn    = document.getElementById('musicBtn');
-      const bars   = document.getElementById('musicBars');
-      iframe.src = 'https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&enablejsapi=1';
-      btn.textContent = '⏸';
-      bars.classList.remove('paused');
-      musicPlaying = true;
-      setTimeout(() => { iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[10]}', '*'); }, 2000);
-    }
-
-    // Auto resume if was playing on another page
-    if (musicStarted) {
-      window.addEventListener('load', () => setTimeout(startMusic, 500));
-    }
-    document.addEventListener('click', startMusic, { once: true });
-    document.addEventListener('keydown', startMusic, { once: true });
-
-    // Whoosh sound on page load
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        try {
-          const ctx = new (window.AudioContext || window.webkitAudioContext)();
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.connect(gain); gain.connect(ctx.destination);
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(800, ctx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.4);
-          gain.gain.setValueAtTime(0.15, ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-          osc.start(ctx.currentTime);
-          osc.stop(ctx.currentTime + 0.4);
-        } catch(e) {}
-      }, 300);
-    });
-
-    // Click sound on pet cards
-    function playClickSound() {
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(600, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.1, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.1);
-      } catch(e) {}
-    }
-
-    // Attach click sounds to pet cards after render
-    const origRender = renderPets;
-
-    function toggleMusic() {
-      const iframe = document.getElementById('ytPlayer');
-      const btn    = document.getElementById('musicBtn');
-      const bars   = document.getElementById('musicBars');
-      if (!musicPlaying) {
-        iframe.src = 'https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&enablejsapi=1';
-        btn.textContent = '⏸'; bars.classList.remove('paused');
-        musicPlaying = true; musicStarted = true;
-        setTimeout(() => { iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[10]}', '*'); }, 2000);
-      } else {
-        iframe.src = 'https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=0&enablejsapi=1';
-        btn.textContent = '▶'; bars.classList.add('paused');
-        musicPlaying = false;
-      }
-    }
-
-    // Add click sounds to cards whenever grid updates
-    const observer = new MutationObserver(() => {
-      document.querySelectorAll('.pet-card').forEach(card => {
-        if (!card.dataset.soundAdded) {
-          card.addEventListener('click', playClickSound);
-          card.dataset.soundAdded = 'true';
-        }
-      });
-    });
-    observer.observe(document.getElementById('petsGrid'), { childList: true });
-  </script>
-
   <script>
     // Subtle lightning background
     const canvas = document.getElementById('lightningCanvas');
