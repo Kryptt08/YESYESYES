@@ -749,18 +749,18 @@
       if (sumA === sumB) {
         diffEl.textContent = 'Even';
         diffEl.className = 'calc-diff-val even';
-        winnerEl.textContent = 'Even ✅';
+        winnerEl.textContent = 'Even \u2705';
         winnerEl.className = 'calc-diff-val even';
       } else if (sumA > sumB) {
         diffEl.textContent = '+' + diff.toLocaleString();
-        diffEl.className = 'calc-diff-val a-wins';
-        winnerEl.textContent = 'Your Side';
-        winnerEl.className = 'calc-diff-val a-wins';
+        diffEl.className = 'calc-diff-val b-wins';
+        winnerEl.textContent = 'Their Side \ud83d\udc4d';
+        winnerEl.className = 'calc-diff-val b-wins';
       } else {
         diffEl.textContent = '+' + diff.toLocaleString();
-        diffEl.className = 'calc-diff-val b-wins';
-        winnerEl.textContent = 'Their Side';
-        winnerEl.className = 'calc-diff-val b-wins';
+        diffEl.className = 'calc-diff-val a-wins';
+        winnerEl.textContent = 'Your Side \ud83d\udc4d';
+        winnerEl.className = 'calc-diff-val a-wins';
       }
 
       renderCalcList('A');
