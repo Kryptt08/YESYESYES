@@ -19,8 +19,6 @@
       --green:    #34d399;
       --text:     #f0eaff;
       --muted:    #8b80b0;
-      --glow-pink: 0 0 20px rgba(255,79,163,0.35);
-      --glow-purple: 0 0 20px rgba(168,85,247,0.35);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -37,12 +35,7 @@
         radial-gradient(2px 2px at 85% 30%, rgba(255,79,163,0.25) 0%, transparent 100%);
       pointer-events: none; z-index: 0;
     }
-
-    /* LIGHTNING BACKGROUND */
-    .lightning-canvas {
-      position: fixed; inset: 0; z-index: 0;
-      pointer-events: none; opacity: 0.6;
-    }
+    .lightning-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.6; }
 
     /* NAV */
     nav {
@@ -83,14 +76,36 @@
       position: relative; z-index: 1;
       padding: 48px 24px 32px; text-align: center;
     }
-    .page-header h1 {
-      font-family: 'Baloo 2', cursive; font-size: 2.2rem; font-weight: 800;
-    }
+    .page-header h1 { font-family: 'Baloo 2', cursive; font-size: 2.2rem; font-weight: 800; }
     .page-header h1 span {
       background: linear-gradient(90deg, var(--pink), var(--purple));
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
     .page-header p { color: var(--muted); margin-top: 8px; }
+
+    /* ── TOP-LEVEL PAGE TABS (Normal / Shiny / Calculator) ── */
+    .page-tabs {
+      position: relative; z-index: 1;
+      max-width: 1100px; margin: 0 auto; padding: 0 24px 0;
+      display: flex; gap: 8px; border-bottom: 2px solid var(--border);
+      margin-bottom: 24px;
+    }
+    .page-tab {
+      background: none; border: none; cursor: pointer;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.9rem;
+      color: var(--muted); padding: 12px 22px; border-radius: 10px 10px 0 0;
+      transition: all 0.2s; position: relative; top: 2px;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .page-tab:hover { color: var(--text); background: rgba(168,85,247,0.08); }
+    .page-tab.active { color: var(--text); background: var(--card); border: 2px solid var(--border); border-bottom: 2px solid var(--card); }
+    .page-tab.tab-normal.active  { color: var(--yellow); }
+    .page-tab.tab-shiny.active   { color: var(--blue); }
+    .page-tab.tab-calc.active    { color: var(--green); }
+
+    /* SECTION VISIBILITY */
+    .tab-section { display: none; }
+    .tab-section.visible { display: block; }
 
     /* CONTROLS */
     .controls {
@@ -98,25 +113,16 @@
       max-width: 1100px; margin: 0 auto; padding: 0 24px 24px;
       display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
     }
-
-    .search-wrap {
-      flex: 1; min-width: 200px; position: relative;
-    }
+    .search-wrap { flex: 1; min-width: 200px; position: relative; }
     .search-wrap input {
       width: 100%; background: var(--card); border: 1px solid var(--border);
       color: var(--text); font-family: 'Nunito', sans-serif; font-size: 0.9rem;
-      padding: 10px 16px 10px 40px; border-radius: 10px; outline: none;
-      transition: border-color 0.2s;
+      padding: 10px 16px 10px 40px; border-radius: 10px; outline: none; transition: border-color 0.2s;
     }
     .search-wrap input:focus { border-color: var(--purple); }
     .search-wrap input::placeholder { color: var(--muted); }
-    .search-wrap .search-icon {
-      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-      font-size: 15px; pointer-events: none;
-    }
-
+    .search-wrap .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 15px; pointer-events: none; }
     .filter-row { display: flex; gap: 8px; flex-wrap: wrap; }
-
     .filter-btn {
       background: var(--card); border: 1px solid var(--border);
       color: var(--muted); font-family: 'Nunito', sans-serif; font-weight: 700;
@@ -128,17 +134,11 @@
     .filter-btn.f-secret.active   { background: rgba(239,68,68,0.15);  border-color: #f87171; color: #f87171; }
     .filter-btn.f-legendary.active { background: rgba(251,191,36,0.15); border-color: var(--yellow); color: var(--yellow); }
     .filter-btn.f-limited.active  { background: rgba(255,79,163,0.15); border-color: var(--pink); color: var(--pink); }
-    .filter-btn.f-rare.active     { background: rgba(56,189,248,0.12); border-color: var(--blue); color: var(--blue); }
-
     .sort-select {
       background: var(--card); border: 1px solid var(--border);
       color: var(--text); font-family: 'Nunito', sans-serif; font-weight: 700;
       font-size: 0.8rem; padding: 8px 16px; border-radius: 8px; cursor: pointer; outline: none;
-      transition: border-color 0.2s;
     }
-    .sort-select:focus { border-color: var(--purple); }
-
-    /* RESULTS INFO */
     .results-info {
       position: relative; z-index: 1;
       max-width: 1100px; margin: 0 auto; padding: 0 24px 16px;
@@ -149,11 +149,8 @@
     .pets-grid {
       position: relative; z-index: 1;
       max-width: 1100px; margin: 0 auto; padding: 0 24px 80px;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
-      gap: 14px;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); gap: 14px;
     }
-
     .pet-card {
       background: var(--card); border: 1px solid var(--border);
       border-radius: 16px; overflow: hidden;
@@ -161,22 +158,18 @@
       display: block; animation: fadeIn 0.3s ease; position: relative;
     }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    .pet-card:hover {
-      border-color: var(--purple);
-      transform: translateY(-4px);
-      box-shadow: 0 8px 32px rgba(168,85,247,0.2);
-    }
+    .pet-card:hover { border-color: var(--purple); transform: translateY(-4px); box-shadow: 0 8px 32px rgba(168,85,247,0.2); }
     .pet-card.r-secret-card:hover   { border-color: #f87171; box-shadow: 0 8px 32px rgba(239,68,68,0.2); }
     .pet-card.r-legendary-card:hover { border-color: var(--yellow); box-shadow: 0 8px 32px rgba(251,191,36,0.2); }
     .pet-card.r-limited-card:hover  { border-color: var(--pink); box-shadow: 0 8px 32px rgba(255,79,163,0.2); }
-    .pet-card.r-robux-card:hover    { border-color: #4ade80; box-shadow: 0 8px 32px rgba(0,200,100,0.2); }
 
-    /* IMAGE AREA - full width top */
+    /* Shiny card glow */
+    .pet-card.shiny-card { border-color: rgba(56,189,248,0.3); }
+    .pet-card.shiny-card:hover { border-color: var(--blue); box-shadow: 0 8px 32px rgba(56,189,248,0.25); }
+
     .pet-img-wrap {
-      width: 100%; height: 130px;
-      background: var(--surface);
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden; position: relative;
+      width: 100%; height: 130px; background: var(--surface);
+      display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;
     }
     .pet-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
     .pet-img-placeholder {
@@ -188,32 +181,28 @@
     .pet-img-placeholder.ph-limited  { background: linear-gradient(135deg, rgba(255,79,163,0.12), rgba(168,85,247,0.12)); }
     .pet-img-placeholder.ph-secret   { background: linear-gradient(135deg, rgba(239,68,68,0.12), rgba(251,113,133,0.08)); }
     .pet-img-placeholder.ph-legendary{ background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(245,158,11,0.08)); }
-    .pet-img-placeholder.ph-rare     { background: linear-gradient(135deg, rgba(56,189,248,0.1), rgba(14,165,233,0.08)); }
+    .pet-img-placeholder.ph-shiny    { background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(99,179,255,0.1)); }
+    .shiny-img-overlay {
+      position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(135deg, rgba(56,189,248,0.08), rgba(99,179,255,0.05));
+    }
 
-    /* CARD BODY */
     .pet-card-body { padding: 10px 12px 12px; }
-    .pet-name  { font-weight: 800; font-size: 0.9rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    /* DEMAND + TREND ROW */
+    .pet-name { font-weight: 800; font-size: 0.9rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .pet-meta-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
     .demand-badge {
       display: inline-flex; align-items: center; gap: 4px;
-      border-radius: 6px; padding: 2px 8px;
-      font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em;
+      border-radius: 6px; padding: 2px 8px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em;
     }
     .demand-none   { background: rgba(139,128,176,0.15); color: var(--muted); border: 1px solid rgba(139,128,176,0.2); }
     .demand-low    { background: rgba(56,189,248,0.12);  color: var(--blue);  border: 1px solid rgba(56,189,248,0.25); }
     .demand-med    { background: rgba(251,191,36,0.15);  color: var(--yellow);border: 1px solid rgba(251,191,36,0.3); }
     .demand-high   { background: rgba(52,211,153,0.15);  color: #34d399;      border: 1px solid rgba(52,211,153,0.3); }
     .demand-extreme{ background: rgba(255,79,163,0.15);  color: var(--pink);  border: 1px solid rgba(255,79,163,0.3); }
-
-    .trend-pill {
-      font-size: 0.68rem; font-weight: 800;
-    }
+    .trend-pill { font-size: 0.68rem; font-weight: 800; }
     .trend-up     { color: #34d399; }
     .trend-down   { color: #f87171; }
     .trend-stable { color: var(--blue); }
-
     .rarity-tag {
       display: inline-block; border-radius: 6px; padding: 2px 9px;
       font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;
@@ -226,41 +215,169 @@
     .r-permanent-legendary{ background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
     .r-limited            { background: rgba(255,79,163,0.15); color: var(--pink); border: 1px solid rgba(255,79,163,0.3); }
     .r-robux              { background: rgba(0,200,100,0.15);  color: #4ade80; border: 1px solid rgba(0,200,100,0.3); }
-    .r-reward             { background: rgba(251,146,60,0.15);  color: #fb923c; border: 1px solid rgba(251,146,60,0.3); }
-    .r-misc               { background: rgba(167,139,250,0.15);  color: #a78bfa; border: 1px solid rgba(167,139,250,0.3); }
-
-    .pet-value       { font-family: 'Baloo 2', cursive; font-size: 1.5rem; font-weight: 800; color: var(--yellow); line-height: 1; margin: 4px 0; }
-    .pet-value-shiny { font-size: 0.78rem; color: var(--blue); font-weight: 700; }
+    .r-reward             { background: rgba(251,146,60,0.15); color: #fb923c; border: 1px solid rgba(251,146,60,0.3); }
+    .r-misc               { background: rgba(167,139,250,0.15);color: #a78bfa; border: 1px solid rgba(167,139,250,0.3); }
+    .pet-value       { font-family: 'Baloo 2', cursive; font-size: 1.5rem; font-weight: 800; line-height: 1; margin: 4px 0; }
+    .pet-value.normal-val { color: var(--yellow); }
+    .pet-value.shiny-val  { color: var(--blue); }
     .pet-value-label { color: var(--muted); font-size: 0.65rem; font-weight: 600; }
-
-    /* CARD FOOTER */
     .pet-card-footer {
       display: flex; justify-content: space-between; align-items: center;
       margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);
       font-size: 0.68rem; color: var(--muted); font-weight: 600;
     }
     .exists-tag { display: flex; align-items: center; gap: 4px; }
-
-
     .shiny-badge {
       display: inline-flex; align-items: center; gap: 4px;
       background: rgba(56,189,248,0.12); border: 1px solid rgba(56,189,248,0.25);
       border-radius: 6px; padding: 1px 7px; font-size: 0.65rem;
-      font-weight: 800; color: var(--blue); text-transform: uppercase; letter-spacing: 0.06em;
-      margin-bottom: 6px;
+      font-weight: 800; color: var(--blue); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px;
     }
-
-    
-          to   { transform: scaleY(1);   opacity: 1; }
-    }
-
     .no-results {
       position: relative; z-index: 1;
-      text-align: center; padding: 60px 24px; color: var(--muted);
-      display: none;
+      text-align: center; padding: 60px 24px; color: var(--muted); display: none;
     }
     .no-results .nr-emoji { font-size: 48px; display: block; margin-bottom: 12px; }
     .no-results p { font-size: 1rem; font-weight: 600; }
+
+    /* ── CALCULATOR ── */
+    .calc-wrap {
+      position: relative; z-index: 1;
+      max-width: 1100px; margin: 0 auto; padding: 0 24px 80px;
+    }
+    .calc-grid {
+      display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: start;
+    }
+    .calc-side {
+      background: var(--card); border: 1px solid var(--border); border-radius: 18px; overflow: hidden;
+    }
+    .calc-side-header {
+      padding: 16px 20px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .calc-side-title {
+      font-family: 'Baloo 2', cursive; font-weight: 800; font-size: 1.1rem;
+    }
+    .calc-side.side-a .calc-side-title { color: var(--pink); }
+    .calc-side.side-b .calc-side-title { color: var(--blue); }
+    .calc-total {
+      font-family: 'Baloo 2', cursive; font-size: 1.3rem; font-weight: 800; color: var(--yellow);
+    }
+    .add-pet-btn {
+      background: rgba(168,85,247,0.18); border: 1px solid rgba(168,85,247,0.35);
+      color: var(--purple); font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 1rem;
+      width: 34px; height: 34px; border-radius: 8px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0;
+    }
+    .add-pet-btn:hover { background: rgba(168,85,247,0.3); }
+    .calc-pets-list { padding: 12px 16px; min-height: 80px; display: flex; flex-direction: column; gap: 8px; }
+    .calc-empty { color: var(--muted); font-size: 0.85rem; font-weight: 600; text-align: center; padding: 24px 0; }
+    .calc-pet-row {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px;
+    }
+    .calc-pet-img {
+      width: 36px; height: 36px; border-radius: 8px; object-fit: cover; background: var(--border);
+      flex-shrink: 0;
+    }
+    .calc-pet-img-placeholder {
+      width: 36px; height: 36px; border-radius: 8px; background: var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.6rem; font-weight: 800; color: var(--muted); flex-shrink: 0;
+    }
+    .calc-pet-info { flex: 1; min-width: 0; }
+    .calc-pet-name { font-weight: 800; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .calc-pet-val  { font-size: 0.75rem; font-weight: 700; margin-top: 1px; }
+    .calc-pet-val.is-shiny { color: var(--blue); }
+    .calc-pet-val.is-normal { color: var(--yellow); }
+    .calc-pet-type {
+      font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 6px; cursor: pointer;
+      transition: all 0.15s; flex-shrink: 0;
+    }
+    .calc-pet-type.type-normal { background: rgba(251,191,36,0.15); color: var(--yellow); border: 1px solid rgba(251,191,36,0.3); }
+    .calc-pet-type.type-shiny  { background: rgba(56,189,248,0.15);  color: var(--blue);   border: 1px solid rgba(56,189,248,0.3); }
+    .calc-remove {
+      background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.2);
+      color: #f87171; font-size: 0.75rem; font-weight: 800;
+      width: 26px; height: 26px; border-radius: 6px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s;
+    }
+    .calc-remove:hover { background: rgba(239,68,68,0.25); }
+
+    /* Versus divider */
+    .calc-vs {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px; padding-top: 70px;
+    }
+    .vs-badge {
+      font-family: 'Baloo 2', cursive; font-size: 1.4rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .calc-diff-box {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 14px 16px; text-align: center; min-width: 110px;
+    }
+    .calc-diff-label { font-size: 0.7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+    .calc-diff-val { font-family: 'Baloo 2', cursive; font-size: 1.15rem; font-weight: 800; }
+    .calc-diff-val.even  { color: var(--green); }
+    .calc-diff-val.a-wins { color: var(--pink); }
+    .calc-diff-val.b-wins { color: var(--blue); }
+
+    /* PET SEARCH MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 999;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+      width: 100%; max-width: 480px; max-height: 80vh;
+      display: flex; flex-direction: column; overflow: hidden;
+      transform: translateY(12px); transition: transform 0.2s;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal-header {
+      padding: 20px 20px 16px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-title { font-family: 'Baloo 2', cursive; font-weight: 800; font-size: 1.1rem; }
+    .modal-close {
+      background: rgba(139,128,176,0.15); border: none; color: var(--muted);
+      width: 30px; height: 30px; border-radius: 8px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: all 0.2s;
+    }
+    .modal-close:hover { background: rgba(239,68,68,0.2); color: #f87171; }
+    .modal-search-wrap { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    .modal-search {
+      width: 100%; background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); font-family: 'Nunito', sans-serif; font-size: 0.95rem;
+      padding: 10px 16px; border-radius: 10px; outline: none; transition: border-color 0.2s;
+    }
+    .modal-search:focus { border-color: var(--purple); }
+    .modal-search::placeholder { color: var(--muted); }
+    .modal-list { overflow-y: auto; flex: 1; padding: 8px 12px 12px; display: flex; flex-direction: column; gap: 4px; }
+    .modal-pet-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 10px; cursor: pointer;
+      transition: background 0.15s; border: 1px solid transparent;
+    }
+    .modal-pet-item:hover { background: var(--surface); border-color: var(--border); }
+    .modal-pet-img {
+      width: 38px; height: 38px; border-radius: 8px; object-fit: cover; background: var(--border); flex-shrink: 0;
+    }
+    .modal-pet-img-ph {
+      width: 38px; height: 38px; border-radius: 8px; background: var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.55rem; font-weight: 800; color: var(--muted); flex-shrink: 0;
+    }
+    .modal-pet-info { flex: 1; min-width: 0; }
+    .modal-pet-name { font-weight: 800; font-size: 0.9rem; }
+    .modal-pet-sub  { font-size: 0.75rem; color: var(--muted); font-weight: 600; margin-top: 2px; }
+    .modal-pet-val  { font-family: 'Baloo 2', cursive; font-size: 1rem; font-weight: 800; color: var(--yellow); flex-shrink: 0; }
 
     footer {
       position: relative; z-index: 1;
@@ -270,7 +387,9 @@
     }
     footer a { color: var(--purple); text-decoration: none; }
 
-    @media (max-width: 600px) {
+    @media (max-width: 700px) {
+      .calc-grid { grid-template-columns: 1fr; }
+      .calc-vs { flex-direction: row; padding-top: 0; padding: 0; }
       .nav-links a span { display: none; }
       .pets-grid { grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); }
     }
@@ -286,15 +405,9 @@
       <span>BGS.GG</span>
     </a>
     <div class="nav-links">
-      <a href="/">
-        <span>Home</span>
-      </a>
-      <a href="/pets" class="active">
-        <span>Pets</span>
-      </a>
-      <a href="https://discord.gg/ogbgs" class="nav-discord" target="_blank">
-        <span>Discord</span>
-      </a>
+      <a href="/"><span>Home</span></a>
+      <a href="/pets" class="active"><span>Pets</span></a>
+      <a href="https://discord.gg/ogbgs" class="nav-discord" target="_blank"><span>Discord</span></a>
       <a href="https://ogbgsvalues.up.railway.app/admin/login" class="nav-lock" title="Admin" target="_blank">🔒</a>
     </div>
   </nav>
@@ -304,35 +417,134 @@
     <p>All OG Bubble Gum Simulator pets — sorted by community trade values</p>
   </div>
 
-  <!-- CONTROLS -->
-  <div class="controls">
-    <div class="search-wrap">
-      <span class="search-icon"></span>
-      <input type="text" id="searchInput" placeholder="Search pets…" oninput="filterPets()">
-    </div>
-    <div class="filter-row">
-      <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
-      <button class="filter-btn f-limited" onclick="setFilter('Limited Secret', this)">Ltd Secret</button>
-      <button class="filter-btn f-secret" onclick="setFilter('Permanent Secret', this)">Perm Secret</button>
-      <button class="filter-btn f-legendary" onclick="setFilter('Limited Legendary', this)">Ltd Legend</button>
-      <button class="filter-btn" onclick="setFilter('Robux', this)" style="color:#4ade80;">Robux</button>
-      <button class="filter-btn" onclick="setFilter('Misc', this)" style="color:#a78bfa;">Misc</button>
-    </div>
-    <select class="sort-select" id="sortSelect" onchange="filterPets()">
-      <option value="value-desc">Highest Value</option>
-      <option value="value-asc">Lowest Value</option>
-      <option value="name-asc">Name A–Z</option>
-      <option value="name-desc">Name Z–A</option>
-    </select>
+  <!-- PAGE-LEVEL TABS -->
+  <div class="page-tabs">
+    <button class="page-tab tab-normal active" onclick="switchPageTab('normal', this)">⭐ Normal</button>
+    <button class="page-tab tab-shiny" onclick="switchPageTab('shiny', this)">✨ Shiny</button>
+    <button class="page-tab tab-calc"  onclick="switchPageTab('calc', this)">⚖️ Trade Calculator</button>
   </div>
 
-  <div class="results-info" id="resultsInfo">Showing all pets</div>
+  <!-- ── NORMAL TAB ── -->
+  <div class="tab-section visible" id="section-normal">
+    <div class="controls">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchNormal" placeholder="Search pets…" oninput="renderNormal()">
+      </div>
+      <div class="filter-row" id="filterRowNormal">
+        <button class="filter-btn active" onclick="setFilter('normal','all',this)">All</button>
+        <button class="filter-btn f-limited" onclick="setFilter('normal','Limited Secret',this)">Ltd Secret</button>
+        <button class="filter-btn f-secret"  onclick="setFilter('normal','Permanent Secret',this)">Perm Secret</button>
+        <button class="filter-btn f-legendary" onclick="setFilter('normal','Limited Legendary',this)">Ltd Legend</button>
+        <button class="filter-btn" onclick="setFilter('normal','Robux',this)" style="color:#4ade80;">Robux</button>
+        <button class="filter-btn" onclick="setFilter('normal','Misc',this)" style="color:#a78bfa;">Misc</button>
+      </div>
+      <select class="sort-select" id="sortNormal" onchange="renderNormal()">
+        <option value="value-desc">Highest Value</option>
+        <option value="value-asc">Lowest Value</option>
+        <option value="name-asc">Name A–Z</option>
+        <option value="name-desc">Name Z–A</option>
+      </select>
+    </div>
+    <div class="results-info" id="resultsNormal">Loading…</div>
+    <div class="pets-grid" id="gridNormal"></div>
+    <div class="no-results" id="noNormal"><span class="nr-emoji">🔍</span><p>No pets found.</p></div>
+  </div>
 
-  <!-- GRID -->
-  <div class="pets-grid" id="petsGrid"></div>
-  <div class="no-results" id="noResults">
-    <span class="nr-emoji"></span>
-    <p>No pets found. Try a different search.</p>
+  <!-- ── SHINY TAB ── -->
+  <div class="tab-section" id="section-shiny">
+    <div class="controls">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchShiny" placeholder="Search shinies…" oninput="renderShiny()">
+      </div>
+      <div class="filter-row" id="filterRowShiny">
+        <button class="filter-btn active" onclick="setFilter('shiny','all',this)">All</button>
+        <button class="filter-btn f-limited" onclick="setFilter('shiny','Limited Secret',this)">Ltd Secret</button>
+        <button class="filter-btn f-secret"  onclick="setFilter('shiny','Permanent Secret',this)">Perm Secret</button>
+        <button class="filter-btn f-legendary" onclick="setFilter('shiny','Limited Legendary',this)">Ltd Legend</button>
+      </div>
+      <select class="sort-select" id="sortShiny" onchange="renderShiny()">
+        <option value="value-desc">Highest Value</option>
+        <option value="value-asc">Lowest Value</option>
+        <option value="name-asc">Name A–Z</option>
+        <option value="name-desc">Name Z–A</option>
+      </select>
+    </div>
+    <div class="results-info" id="resultsShiny">Loading…</div>
+    <div class="pets-grid" id="gridShiny"></div>
+    <div class="no-results" id="noShiny"><span class="nr-emoji">✨</span><p>No shinies found.</p></div>
+  </div>
+
+  <!-- ── CALCULATOR TAB ── -->
+  <div class="tab-section" id="section-calc">
+    <div class="calc-wrap">
+      <div class="calc-grid">
+
+        <!-- SIDE A -->
+        <div class="calc-side side-a">
+          <div class="calc-side-header">
+            <div>
+              <div class="calc-side-title">Your Side</div>
+              <div style="font-size:0.75rem;color:var(--muted);font-weight:600;margin-top:2px;">What you're offering</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="calc-total" id="totalA">0</div>
+              <button class="add-pet-btn" onclick="openModal('A')" title="Add pet">+</button>
+            </div>
+          </div>
+          <div class="calc-pets-list" id="listA">
+            <div class="calc-empty">Press <strong>+</strong> to add a pet</div>
+          </div>
+        </div>
+
+        <!-- VS -->
+        <div class="calc-vs">
+          <div class="vs-badge">VS</div>
+          <div class="calc-diff-box">
+            <div class="calc-diff-label">Difference</div>
+            <div class="calc-diff-val even" id="calcDiff">—</div>
+          </div>
+          <div class="calc-diff-box" style="margin-top:4px;">
+            <div class="calc-diff-label">Winner</div>
+            <div class="calc-diff-val even" id="calcWinner">Even</div>
+          </div>
+          <button onclick="clearCalc()" style="margin-top:12px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;font-family:'Nunito',sans-serif;font-weight:700;font-size:0.75rem;padding:7px 14px;border-radius:8px;cursor:pointer;">Clear All</button>
+        </div>
+
+        <!-- SIDE B -->
+        <div class="calc-side side-b">
+          <div class="calc-side-header">
+            <div>
+              <div class="calc-side-title">Their Side</div>
+              <div style="font-size:0.75rem;color:var(--muted);font-weight:600;margin-top:2px;">What they're offering</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="calc-total" id="totalB">0</div>
+              <button class="add-pet-btn" onclick="openModal('B')" title="Add pet">+</button>
+            </div>
+          </div>
+          <div class="calc-pets-list" id="listB">
+            <div class="calc-empty">Press <strong>+</strong> to add a pet</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- PET SEARCH MODAL -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Add Pet</div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-search-wrap">
+        <input class="modal-search" id="modalSearch" placeholder="Search by name…" oninput="renderModalList()" autocomplete="off">
+      </div>
+      <div class="modal-list" id="modalList"></div>
+    </div>
   </div>
 
   <footer>
@@ -343,8 +555,10 @@
   <script>
     const API = 'https://ogbgsvalues.up.railway.app';
     let ALL_PETS = [];
-    let currentFilter = 'all';
+    let filterNormal = 'all';
+    let filterShiny  = 'all';
 
+    // ── UTILS ──
     function rarityClass(r) {
       const map = {
         'Limited':            'r-limited',
@@ -361,189 +575,324 @@
       return map[r] || 'r-limited';
     }
     function cardRarityClass(r) {
-      if (r === 'Limited')             return 'r-limited-card';
-      if (r === 'Permanent Secret')    return 'r-secret-card';
-      if (r === 'Limited Secret')      return 'r-secret-card';
-      if (r === 'Permanent Legendary') return 'r-legendary-card';
-      if (r === 'Limited Legendary')   return 'r-legendary-card';
-      if (r === 'Robux')               return 'r-robux-card';
-      if (r === 'Secret')              return 'r-secret-card';
-      if (r === 'Legendary')           return 'r-legendary-card';
+      if (['Permanent Secret','Limited Secret','Secret'].includes(r)) return 'r-secret-card';
+      if (['Permanent Legendary','Limited Legendary','Legendary'].includes(r)) return 'r-legendary-card';
+      if (r === 'Robux') return 'r-robux-card';
       return '';
     }
     function formatValue(v) {
       if (!v || v === 'null' || v === '0') return '0';
       const upper = v.toString().toUpperCase().trim();
-      if (upper === 'N/A') return 'N/A';
-      if (upper === 'O/C') return 'O/C';
+      if (upper === 'N/A' || upper === 'O/C') return upper;
       const num = parseFloat(v);
       if (isNaN(num)) return v;
-      if (num >= 1000) return num.toLocaleString();
-      return num.toString();
+      return num >= 1000 ? num.toLocaleString() : num.toString();
     }
-
-    function setFilter(rarity, btn) {
-      currentFilter = rarity;
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderPets();
+    function numValue(v) {
+      if (!v) return 0;
+      const upper = v.toString().toUpperCase().trim();
+      if (upper === 'N/A' || upper === 'O/C') return 0;
+      return parseFloat(v) || 0;
     }
-
-    function renderPets() {
-      const q    = document.getElementById('searchInput').value.toLowerCase().trim();
-      const sort = document.getElementById('sortSelect').value;
-
-      let filtered = ALL_PETS.filter(p => {
-        const matchRarity = currentFilter === 'all' || p.rarity === currentFilter;
-        const matchSearch = p.name.toLowerCase().includes(q);
-        return matchRarity && matchSearch;
-      });
-
-      filtered.sort((a, b) => {
-        if (sort === 'value-desc') return b.value - a.value;
-        if (sort === 'value-asc')  return a.value - b.value;
+    function sortPets(arr, sort, useShiny = false) {
+      return [...arr].sort((a, b) => {
+        const va = numValue(useShiny ? a.shiny_value : a.value);
+        const vb = numValue(useShiny ? b.shiny_value : b.value);
+        if (sort === 'value-desc') return vb - va;
+        if (sort === 'value-asc')  return va - vb;
         if (sort === 'name-asc')   return a.name.localeCompare(b.name);
         if (sort === 'name-desc')  return b.name.localeCompare(a.name);
         return 0;
       });
+    }
+    function timeAgo(ts) {
+      const d = new Date(ts + 'Z');
+      const diff = Math.floor((Date.now() - d) / 60000);
+      if (diff < 1) return 'just now';
+      if (diff < 60) return diff + 'm ago';
+      if (diff < 1440) return Math.floor(diff/60) + 'h ago';
+      return Math.floor(diff/1440) + 'd ago';
+    }
+    function demandInfo(d) {
+      d = d || 0;
+      const cls   = d >= 9 ? 'demand-extreme' : d >= 7 ? 'demand-high' : d >= 4 ? 'demand-med' : d >= 1 ? 'demand-low' : 'demand-none';
+      const label = d >= 9 ? '🔥 Extreme'     : d >= 7 ? '↑ High'     : d >= 4 ? '~ Med'      : d >= 1 ? '↓ Low'     : 'None';
+      return { cls, label };
+    }
+    function trendHtml(t) {
+      if (t === 'up')   return `<span class="trend-pill trend-up">▲ Rising</span>`;
+      if (t === 'down') return `<span class="trend-pill trend-down">▼ Falling</span>`;
+      return `<span class="trend-pill trend-stable">● Stable</span>`;
+    }
 
-      const grid  = document.getElementById('petsGrid');
-      const noRes = document.getElementById('noResults');
-      const info  = document.getElementById('resultsInfo');
+    // ── PAGE TABS ──
+    function switchPageTab(name, btn) {
+      document.querySelectorAll('.page-tab').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('visible'));
+      btn.classList.add('active');
+      document.getElementById('section-' + name).classList.add('visible');
+    }
 
-      if (filtered.length === 0) {
-        grid.innerHTML = '';
-        noRes.style.display = 'block';
-        info.textContent = 'No pets found';
-        return;
-      }
+    // ── FILTER BUTTONS ──
+    function setFilter(tab, rarity, btn) {
+      const row = tab === 'normal' ? 'filterRowNormal' : 'filterRowShiny';
+      document.querySelectorAll('#' + row + ' .filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (tab === 'normal') { filterNormal = rarity; renderNormal(); }
+      else                  { filterShiny  = rarity; renderShiny(); }
+    }
 
-      noRes.style.display = 'none';
-      info.textContent = `Showing ${filtered.length} pet${filtered.length !== 1 ? 's' : ''}`;
+    // ── NORMAL RENDER ──
+    function renderNormal() {
+      const q = document.getElementById('searchNormal').value.toLowerCase().trim();
+      const sort = document.getElementById('sortNormal').value;
+      let list = ALL_PETS.filter(p => {
+        const matchR = filterNormal === 'all' || p.rarity === filterNormal;
+        return matchR && p.name.toLowerCase().includes(q);
+      });
+      list = sortPets(list, sort, false);
+      const grid = document.getElementById('gridNormal');
+      const no   = document.getElementById('noNormal');
+      const info = document.getElementById('resultsNormal');
+      if (!list.length) { grid.innerHTML = ''; no.style.display = 'block'; info.textContent = 'No pets found'; return; }
+      no.style.display = 'none';
+      info.textContent = `Showing ${list.length} pet${list.length !== 1 ? 's' : ''}`;
+      grid.innerHTML = list.map(p => petCardHtml(p, false)).join('');
+    }
 
-      grid.innerHTML = filtered.map(p => {
-        const demand = p.demand || 0;
-        const demandClass = demand >= 9 ? 'demand-extreme'
-                          : demand >= 7 ? 'demand-high'
-                          : demand >= 4 ? 'demand-med'
-                          : demand >= 1 ? 'demand-low'
-                          : 'demand-none';
-        const demandLabel = demand >= 9 ? '🔥 Extreme'
-                          : demand >= 7 ? '↑ High'
-                          : demand >= 4 ? '~ Med'
-                          : demand >= 1 ? '↓ Low'
-                          : 'None';
-        const trendHtml = p.trend === 'up'   ? `<span class="trend-pill trend-up">▲ Rising</span>`
-                        : p.trend === 'down' ? `<span class="trend-pill trend-down">▼ Falling</span>`
-                        : `<span class="trend-pill trend-stable">● Stable</span>`;
-        const imgHtml = p.image_url
-          ? `<img src="${p.image_url}" alt="${p.name}" onerror="this.parentElement.innerHTML='<div class=\\'pet-img-placeholder ph-${p.rarity.toLowerCase()}\\'>${p.name.split(' ').map(w=>w[0]).join('')}</div>'">`
-          : `<div class="pet-img-placeholder ph-${p.rarity.toLowerCase()}">${p.name.split(' ').map(w=>w[0]).join('')}</div>`;
-        const timeAgo = (() => {
-          const d = new Date(p.updated_at + 'Z');
-          const diff = Math.floor((Date.now() - d) / 60000);
-          if (diff < 1) return 'just now';
-          if (diff < 60) return diff + 'm ago';
-          if (diff < 1440) return Math.floor(diff/60) + 'h ago';
-          return Math.floor(diff/1440) + 'd ago';
-        })();
-        return `
-        <a class="pet-card ${cardRarityClass(p.rarity)}" href="/pet/${p.id}">
-          <div class="pet-img-wrap">${imgHtml}</div>
+    // ── SHINY RENDER ──
+    function renderShiny() {
+      const q = document.getElementById('searchShiny').value.toLowerCase().trim();
+      const sort = document.getElementById('sortShiny').value;
+      // Only show pets that have a real shiny value
+      let list = ALL_PETS.filter(p => {
+        const sv = (p.shiny_value || '').toUpperCase().trim();
+        const hasShiny = sv && sv !== '0' && sv !== 'N/A';
+        const matchR = filterShiny === 'all' || p.rarity === filterShiny;
+        return hasShiny && matchR && p.name.toLowerCase().includes(q);
+      });
+      list = sortPets(list, sort, true);
+      const grid = document.getElementById('gridShiny');
+      const no   = document.getElementById('noShiny');
+      const info = document.getElementById('resultsShiny');
+      if (!list.length) { grid.innerHTML = ''; no.style.display = 'block'; info.textContent = 'No shinies found'; return; }
+      no.style.display = 'none';
+      info.textContent = `Showing ${list.length} shiny pet${list.length !== 1 ? 's' : ''}`;
+      grid.innerHTML = list.map(p => petCardHtml(p, true)).join('');
+    }
+
+    function petCardHtml(p, isShiny) {
+      const { cls: demCls, label: demLabel } = demandInfo(p.demand);
+      const imgHtml = p.image_url
+        ? `<img src="${p.image_url}" alt="${p.name}" onerror="this.parentElement.innerHTML='<div class=\\'pet-img-placeholder ph-${p.rarity.toLowerCase()}\\'>${p.name.split(' ').map(w=>w[0]).join('')}</div>'">`
+        : `<div class="pet-img-placeholder ph-${p.rarity.toLowerCase()}">${p.name.split(' ').map(w=>w[0]).join('')}</div>`;
+      const displayVal = isShiny ? formatValue(p.shiny_value) : formatValue(p.value);
+      const valClass   = isShiny ? 'shiny-val' : 'normal-val';
+      const valLabel   = isShiny ? '✨ Shiny Value' : '⭐ Value';
+      const shinyOverlay = isShiny ? '<div class="shiny-img-overlay"></div>' : '';
+      return `
+        <a class="pet-card ${cardRarityClass(p.rarity)}${isShiny ? ' shiny-card' : ''}" href="/pet/${p.id}">
+          <div class="pet-img-wrap">${imgHtml}${shinyOverlay}</div>
           <div class="pet-card-body">
             <div class="pet-name">${p.name}</div>
             <div class="pet-meta-row">
-              <span class="demand-badge ${demandClass}">${demandLabel}</span>
-              ${trendHtml}
+              <span class="demand-badge ${demCls}">${demLabel}</span>
+              ${trendHtml(p.trend)}
             </div>
             <span class="rarity-tag ${rarityClass(p.rarity)}">${p.rarity}</span>
+            ${isShiny ? '<div class="shiny-badge">✨ Shiny</div>' : ''}
             ${p.note ? `<div style="font-size:0.65rem;color:var(--pink);font-weight:700;margin-bottom:4px;">${p.note}</div>` : ''}
-            <div class="pet-value">${formatValue(p.value)}</div>
-            ${p.shiny_value ? `<div class="pet-value-shiny">✨ Shiny: ${formatValue(p.shiny_value)}</div>` : ''}
+            <div class="pet-value-label">${valLabel}</div>
+            <div class="pet-value ${valClass}">${displayVal}</div>
             <div class="pet-card-footer">
-              <span class="exists-tag">👤 ${p.exists_normal || 0} exist</span>
-              <span>${timeAgo}</span>
+              <span class="exists-tag">👤 ${isShiny ? (p.exists_shiny || 0) : (p.exists_normal || 0)} exist</span>
+              <span>${timeAgo(p.updated_at)}</span>
             </div>
           </div>
         </a>`;
+    }
+
+    // ── LOAD ──
+    async function loadPets() {
+      document.getElementById('gridNormal').innerHTML = '<div style="color:var(--muted);font-size:0.875rem;padding:20px;grid-column:1/-1;">Loading…</div>';
+      try {
+        const res = await fetch(`${API}/api/pets/?sort=value_desc`);
+        ALL_PETS = await res.json();
+        renderNormal();
+        renderShiny();
+      } catch (e) {
+        document.getElementById('gridNormal').innerHTML = '<div style="color:var(--muted);font-size:0.875rem;padding:20px;grid-column:1/-1;">Could not connect to API.</div>';
+      }
+    }
+    loadPets();
+
+    // ── CALCULATOR ──
+    let calcItems = { A: [], B: [] };
+    let modalTarget = 'A';
+
+    function calcNumVal(pet, isShiny) {
+      return isShiny ? numValue(pet.shiny_value) : numValue(pet.value);
+    }
+
+    function updateCalc() {
+      const sumA = calcItems.A.reduce((s, item) => s + calcNumVal(item.pet, item.isShiny), 0);
+      const sumB = calcItems.B.reduce((s, item) => s + calcNumVal(item.pet, item.isShiny), 0);
+
+      document.getElementById('totalA').textContent = sumA.toLocaleString();
+      document.getElementById('totalB').textContent = sumB.toLocaleString();
+
+      const diff = Math.abs(sumA - sumB);
+      const diffEl   = document.getElementById('calcDiff');
+      const winnerEl = document.getElementById('calcWinner');
+
+      if (sumA === sumB) {
+        diffEl.textContent = 'Even';
+        diffEl.className = 'calc-diff-val even';
+        winnerEl.textContent = 'Even ✅';
+        winnerEl.className = 'calc-diff-val even';
+      } else if (sumA > sumB) {
+        diffEl.textContent = '+' + diff.toLocaleString();
+        diffEl.className = 'calc-diff-val a-wins';
+        winnerEl.textContent = 'Your Side';
+        winnerEl.className = 'calc-diff-val a-wins';
+      } else {
+        diffEl.textContent = '+' + diff.toLocaleString();
+        diffEl.className = 'calc-diff-val b-wins';
+        winnerEl.textContent = 'Their Side';
+        winnerEl.className = 'calc-diff-val b-wins';
+      }
+
+      renderCalcList('A');
+      renderCalcList('B');
+    }
+
+    function renderCalcList(side) {
+      const list = document.getElementById('list' + side);
+      const items = calcItems[side];
+      if (!items.length) {
+        list.innerHTML = `<div class="calc-empty">Press <strong>+</strong> to add a pet</div>`;
+        return;
+      }
+      list.innerHTML = items.map((item, idx) => {
+        const p = item.pet;
+        const val = calcNumVal(p, item.isShiny);
+        const imgHtml = p.image_url
+          ? `<img class="calc-pet-img" src="${p.image_url}" alt="${p.name}" onerror="this.outerHTML='<div class=\\'calc-pet-img-placeholder\\'>${p.name.split(' ').map(w=>w[0]).join('')}</div>'">`
+          : `<div class="calc-pet-img-placeholder">${p.name.split(' ').map(w=>w[0]).join('')}</div>`;
+        const typeClass = item.isShiny ? 'type-shiny' : 'type-normal';
+        const typeLabel = item.isShiny ? '✨ Shiny' : '⭐ Normal';
+        const hasShiny  = p.shiny_value && p.shiny_value.toUpperCase().trim() !== 'N/A' && p.shiny_value !== '0';
+        return `
+          <div class="calc-pet-row">
+            ${imgHtml}
+            <div class="calc-pet-info">
+              <div class="calc-pet-name">${p.name}</div>
+              <div class="calc-pet-val ${item.isShiny ? 'is-shiny' : 'is-normal'}">${val.toLocaleString()}</div>
+            </div>
+            ${hasShiny ? `` : ``}
+            <span class="calc-pet-type ${typeClass}">${typeLabel}</span>
+            <button class="calc-remove" onclick="removeCalcItem('${side}',${idx})">✕</button>
+          </div>`;
       }).join('');
     }
 
-    function filterPets() { renderPets(); }
-
-    async function loadPets() {
-      const grid = document.getElementById('petsGrid');
-      grid.innerHTML = '<div style="color:var(--muted);font-size:0.875rem;padding:20px;grid-column:1/-1;">Loading...</div>';
-      try {
-        const res = await fetch(`${API}/api/pets/?sort=value_desc`);
-        ALL_PETS  = await res.json();
-        renderPets();
-      } catch (e) {
-        grid.innerHTML = '<div style="color:var(--muted);font-size:0.875rem;padding:20px;grid-column:1/-1;">Could not connect to API. Make sure the backend is running on port 8000.</div>';
-      }
+    function toggleShiny(side, idx) {
+      calcItems[side][idx].isShiny = !calcItems[side][idx].isShiny;
+      updateCalc();
     }
 
-    loadPets();
-  </script>      <div class="music-sub">beats to chill to</div>
-    </div>
-    <div class="music-bars paused" id="musicBars">
-      <span></span><span></span><span></span><span></span><span></span>
-    </div>
-  </div>
+    function removeCalcItem(side, idx) {
+      calcItems[side].splice(idx, 1);
+      updateCalc();
+    }
 
-  <!-- Hidden YouTube iframe for audio -->
-  <script>
-    // Subtle lightning background
+    function clearCalc() {
+      calcItems = { A: [], B: [] };
+      updateCalc();
+    }
+
+    // ── MODAL ──
+    function openModal(side) {
+      modalTarget = side;
+      document.getElementById('modalSearch').value = '';
+      renderModalList();
+      document.getElementById('modalOverlay').classList.add('open');
+      setTimeout(() => document.getElementById('modalSearch').focus(), 50);
+    }
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('open');
+    }
+    function closeModalOutside(e) {
+      if (e.target === document.getElementById('modalOverlay')) closeModal();
+    }
+
+    function renderModalList() {
+      const q = document.getElementById('modalSearch').value.toLowerCase().trim();
+      const filtered = ALL_PETS.filter(p => p.name.toLowerCase().includes(q)).slice(0, 50);
+
+      // Build flat list: normal entry for every pet, shiny entry if it has a real shiny value
+      const entries = [];
+      filtered.forEach(p => {
+        entries.push({ pet: p, isShiny: false });
+        const sv = (p.shiny_value || '').toUpperCase().trim();
+        if (sv && sv !== '0' && sv !== 'N/A') {
+          entries.push({ pet: p, isShiny: true });
+        }
+      });
+
+      document.getElementById('modalList').innerHTML = entries.map(({ pet: p, isShiny }) => {
+        const imgHtml = p.image_url
+          ? `<img class="modal-pet-img" src="${p.image_url}" alt="${p.name}" style="${isShiny ? 'filter:hue-rotate(180deg) saturate(1.4);' : ''}" onerror="this.outerHTML='<div class=\\'modal-pet-img-ph\\'>${p.name.split(' ').map(w=>w[0]).join('')}</div>'">`
+          : `<div class="modal-pet-img-ph" style="${isShiny ? 'background:rgba(56,189,248,0.2);color:var(--blue);' : ''}">${p.name.split(' ').map(w=>w[0]).join('')}</div>`;
+        const val   = isShiny ? formatValue(p.shiny_value) : formatValue(p.value);
+        const label = isShiny ? '✨ Shiny' : '⭐ Normal';
+        const valColor = isShiny ? 'color:var(--blue)' : 'color:var(--yellow)';
+        const badge = isShiny
+          ? `<span style="font-size:0.65rem;font-weight:800;background:rgba(56,189,248,0.12);border:1px solid rgba(56,189,248,0.25);border-radius:5px;padding:1px 6px;color:var(--blue);">${label}</span>`
+          : `<span style="font-size:0.65rem;font-weight:800;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.25);border-radius:5px;padding:1px 6px;color:var(--yellow);">${label}</span>`;
+        return `
+          <div class="modal-pet-item" onclick="addPetToCalc(${p.id}, ${isShiny})">
+            ${imgHtml}
+            <div class="modal-pet-info">
+              <div class="modal-pet-name">${p.name}</div>
+              <div class="modal-pet-sub" style="display:flex;align-items:center;gap:5px;margin-top:3px;">${badge} <span>${p.rarity}</span></div>
+            </div>
+            <div class="modal-pet-val" style="${valColor}">${val}</div>
+          </div>`;
+      }).join('') || '<div style="color:var(--muted);padding:20px;text-align:center;font-size:0.875rem;">No pets found</div>';
+    }
+
+    function addPetToCalc(petId, isShiny) {
+      const pet = ALL_PETS.find(p => p.id === petId);
+      if (!pet) return;
+      calcItems[modalTarget].push({ pet, isShiny: !!isShiny });
+      updateCalc();
+      closeModal();
+    }
+
+    // ── LIGHTNING ──
     const canvas = document.getElementById('lightningCanvas');
     const ctx = canvas.getContext('2d');
-
-    function resize() {
-      canvas.width  = window.innerWidth;
-      canvas.height = window.innerHeight;
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    resize(); window.addEventListener('resize', resize);
+    function drawBolt(x1,y1,x2,y2,b,a) {
+      if (!b) return;
+      const mx=(x1+x2)/2+(Math.random()-.5)*120, my=(y1+y2)/2+(Math.random()-.5)*120;
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(mx,my); ctx.lineTo(x2,y2);
+      ctx.strokeStyle=`rgba(168,85,247,${a})`; ctx.lineWidth=b*.8;
+      ctx.shadowColor='rgba(168,85,247,1)'; ctx.shadowBlur=12; ctx.stroke();
+      if(Math.random()>.3) drawBolt(mx,my,mx+(Math.random()-.5)*250,my+Math.random()*200,b-1,a*.7);
+      if(Math.random()>.6) drawBolt(mx,my,mx+(Math.random()-.5)*150,my+Math.random()*100,b-1,a*.5);
     }
-    resize();
-    window.addEventListener('resize', resize);
-
-    function drawBolt(x1, y1, x2, y2, branches, alpha) {
-      if (branches === 0) return;
-      const mx = (x1 + x2) / 2 + (Math.random() - 0.5) * 120;
-      const my = (y1 + y2) / 2 + (Math.random() - 0.5) * 120;
-
-      ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(mx, my);
-      ctx.lineTo(x2, y2);
-      ctx.strokeStyle = `rgba(168, 85, 247, ${alpha})`;
-      ctx.lineWidth = branches * 0.8;
-      ctx.shadowColor = 'rgba(168,85,247,1)';
-      ctx.shadowBlur = 12;
-      ctx.stroke();
-
-      if (Math.random() > 0.3) {
-        drawBolt(mx, my, mx + (Math.random()-0.5)*250, my + Math.random()*200, branches-1, alpha*0.7);
-      }
-      if (Math.random() > 0.6) {
-        drawBolt(mx, my, mx + (Math.random()-0.5)*150, my + Math.random()*100, branches-1, alpha*0.5);
-      }
-    }
-
     function flash() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const numBolts = Math.floor(Math.random() * 3) + 1;
-      for (let i = 0; i < numBolts; i++) {
-        const x = Math.random() * canvas.width;
-        drawBolt(x, 0, x + (Math.random()-0.5)*400, canvas.height * 0.7, 5, 0.6);
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      for(let i=0;i<Math.floor(Math.random()*3)+1;i++){
+        const x=Math.random()*canvas.width;
+        drawBolt(x,0,x+(Math.random()-.5)*400,canvas.height*.7,5,.6);
       }
-      setTimeout(() => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-      }, 150);
+      setTimeout(()=>ctx.clearRect(0,0,canvas.width,canvas.height),150);
     }
-
-    // Fire more frequently
-    setInterval(() => {
-      if (Math.random() > 0.2) flash();
-    }, 2000);
+    setInterval(()=>{ if(Math.random()>.2) flash(); },2000);
   </script>
-
 </body>
 </html>
