@@ -683,9 +683,10 @@
 
     function petCardHtml(p, isShiny) {
       const { cls: demCls, label: demLabel } = demandInfo(p.demand);
-      const imgHtml = p.image_url
-        ? `<img src="${p.image_url}" alt="${p.name}" onerror="this.parentElement.innerHTML='<div class=\\'pet-img-placeholder ph-${p.rarity.toLowerCase()}\\'>${p.name.split(' ').map(w=>w[0]).join('')}</div>'">`
-        : `<div class="pet-img-placeholder ph-${p.rarity.toLowerCase()}">${p.name.split(' ').map(w=>w[0]).join('')}</div>`;
+      const imgSrc  = isShiny ? (p.shiny_image_url || p.image_url) : p.image_url;
+      const imgHtml = imgSrc
+        ? `<img src="${imgSrc}" alt="${p.name}" onerror="this.parentElement.innerHTML='<div class=\\'pet-img-placeholder ${isShiny ? 'ph-shiny' : 'ph-' + p.rarity.toLowerCase()}\\'>${p.name.split(' ').map(w=>w[0]).join('')}</div>'">`
+        : `<div class="pet-img-placeholder ${isShiny ? 'ph-shiny' : 'ph-' + p.rarity.toLowerCase()}">${p.name.split(' ').map(w=>w[0]).join('')}</div>`;
       const displayVal = isShiny ? formatValue(p.shiny_value) : formatValue(p.value);
       const valClass   = isShiny ? 'shiny-val' : 'normal-val';
       const valLabel   = isShiny ? '✨ Shiny Value' : '⭐ Value';
@@ -776,8 +777,9 @@
       list.innerHTML = items.map((item, idx) => {
         const p = item.pet;
         const val = calcNumVal(p, item.isShiny);
-        const imgHtml = p.image_url
-          ? `<img class="calc-pet-img" src="${p.image_url}" alt="${p.name}" onerror="this.outerHTML='<div class=\\'calc-pet-img-placeholder\\'>${p.name.split(' ').map(w=>w[0]).join('')}</div>'">`
+        const calcImgSrc = item.isShiny ? (p.shiny_image_url || p.image_url) : p.image_url;
+        const imgHtml = calcImgSrc
+          ? `<img class="calc-pet-img" src="${calcImgSrc}" alt="${p.name}" onerror="this.outerHTML='<div class=\\'calc-pet-img-placeholder\\'>${p.name.split(' ').map(w=>w[0]).join('')}</div>'">`
           : `<div class="calc-pet-img-placeholder">${p.name.split(' ').map(w=>w[0]).join('')}</div>`;
         const typeClass = item.isShiny ? 'type-shiny' : 'type-normal';
         const typeLabel = item.isShiny ? '✨ Shiny' : '⭐ Normal';
@@ -841,8 +843,9 @@
       });
 
       document.getElementById('modalList').innerHTML = entries.map(({ pet: p, isShiny }) => {
-        const imgHtml = p.image_url
-          ? `<img class="modal-pet-img" src="${p.image_url}" alt="${p.name}" style="${isShiny ? 'filter:hue-rotate(180deg) saturate(1.4);' : ''}" onerror="this.outerHTML='<div class=\\'modal-pet-img-ph\\'>${p.name.split(' ').map(w=>w[0]).join('')}</div>'">`
+        const modalImgSrc = isShiny ? (p.shiny_image_url || p.image_url) : p.image_url;
+        const imgHtml = modalImgSrc
+          ? `<img class="modal-pet-img" src="${modalImgSrc}" alt="${p.name}" onerror="this.outerHTML='<div class=\\'modal-pet-img-ph\\'>${p.name.split(' ').map(w=>w[0]).join('')}</div>'">`
           : `<div class="modal-pet-img-ph" style="${isShiny ? 'background:rgba(56,189,248,0.2);color:var(--blue);' : ''}">${p.name.split(' ').map(w=>w[0]).join('')}</div>`;
         const val   = isShiny ? formatValue(p.shiny_value) : formatValue(p.value);
         const label = isShiny ? '✨ Shiny' : '⭐ Normal';
