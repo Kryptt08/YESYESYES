@@ -304,6 +304,20 @@
       display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s;
     }
     .calc-remove:hover { background: rgba(239,68,68,0.25); }
+    .qty-ctrl {
+      display: flex; align-items: center; gap: 4px; flex-shrink: 0;
+    }
+    .qty-btn {
+      background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.3);
+      color: var(--purple); font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.85rem;
+      width: 24px; height: 24px; border-radius: 6px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: all 0.15s; line-height: 1;
+    }
+    .qty-btn:hover { background: rgba(168,85,247,0.3); }
+    .qty-num {
+      font-family: 'Baloo 2', cursive; font-weight: 800; font-size: 0.95rem;
+      color: var(--text); min-width: 22px; text-align: center;
+    }
 
     /* Versus divider */
     .calc-vs {
@@ -736,8 +750,8 @@
     }
 
     function updateCalc() {
-      const sumA = calcItems.A.reduce((s, item) => s + calcNumVal(item.pet, item.isShiny), 0);
-      const sumB = calcItems.B.reduce((s, item) => s + calcNumVal(item.pet, item.isShiny), 0);
+      const sumA = calcItems.A.reduce((s, item) => s + calcNumVal(item.pet, item.isShiny) * (item.qty || 1), 0);
+      const sumB = calcItems.B.reduce((s, item) => s + calcNumVal(item.pet, item.isShiny) * (item.qty || 1), 0);
 
       document.getElementById('totalA').textContent = sumA.toLocaleString();
       document.getElementById('totalB').textContent = sumB.toLocaleString();
@@ -776,7 +790,8 @@
       }
       list.innerHTML = items.map((item, idx) => {
         const p = item.pet;
-        const val = calcNumVal(p, item.isShiny);
+        const baseVal = calcNumVal(p, item.isShiny);
+        const totalVal = baseVal * (item.qty || 1);
         const calcImgSrc = item.isShiny ? (p.shiny_image_url || p.image_url) : p.image_url;
         const imgHtml = calcImgSrc
           ? `<img class="calc-pet-img" src="${calcImgSrc}" alt="${p.name}" onerror="this.outerHTML='<div class=\\'calc-pet-img-placeholder\\'>${p.name.split(' ').map(w=>w[0]).join('')}</div>'">`
@@ -784,15 +799,22 @@
         const typeClass = item.isShiny ? 'type-shiny' : 'type-normal';
         const typeLabel = item.isShiny ? '✨ Shiny' : '⭐ Normal';
         const hasShiny  = p.shiny_value && p.shiny_value.toUpperCase().trim() !== 'N/A' && p.shiny_value !== '0';
+        const valLine = item.qty > 1
+          ? `${totalVal.toLocaleString()} <span style="color:var(--muted);font-size:0.7rem;">(${baseVal.toLocaleString()} x${item.qty})</span>`
+          : totalVal.toLocaleString();
         return `
           <div class="calc-pet-row">
             ${imgHtml}
             <div class="calc-pet-info">
               <div class="calc-pet-name">${p.name}</div>
-              <div class="calc-pet-val ${item.isShiny ? 'is-shiny' : 'is-normal'}">${val.toLocaleString()}</div>
+              <div class="calc-pet-val ${item.isShiny ? 'is-shiny' : 'is-normal'}">${valLine}</div>
             </div>
-            ${hasShiny ? `` : ``}
             <span class="calc-pet-type ${typeClass}">${typeLabel}</span>
+            <div class="qty-ctrl">
+              <button class="qty-btn" onclick="changeQty('${side}',${idx},-1)">−</button>
+              <span class="qty-num">${item.qty || 1}</span>
+              <button class="qty-btn" onclick="changeQty('${side}',${idx},1)">+</button>
+            </div>
             <button class="calc-remove" onclick="removeCalcItem('${side}',${idx})">✕</button>
           </div>`;
       }).join('');
@@ -805,6 +827,12 @@
 
     function removeCalcItem(side, idx) {
       calcItems[side].splice(idx, 1);
+      updateCalc();
+    }
+
+    function changeQty(side, idx, delta) {
+      const item = calcItems[side][idx];
+      item.qty = Math.max(1, (item.qty || 1) + delta);
       updateCalc();
     }
 
@@ -868,7 +896,7 @@
     function addPetToCalc(petId, isShiny) {
       const pet = ALL_PETS.find(p => p.id === petId);
       if (!pet) return;
-      calcItems[modalTarget].push({ pet, isShiny: !!isShiny });
+      calcItems[modalTarget].push({ pet, isShiny: !!isShiny, qty: 1 });
       updateCalc();
       closeModal();
     }
